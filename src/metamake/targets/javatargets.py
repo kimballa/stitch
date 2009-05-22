@@ -507,7 +507,8 @@ class JavaTarget(AntTarget):
       text = text + "  </copy>\n"
 
     # make sure the main jar isn't in its own lib dir.
-    text = text + "  <delete file=\"" + jarFileName + "\"/>\n"
+    jar_base_name = os.path.basename(jarFileName)
+    text = text + "  <delete file=\"" + os.path.join(dest_dir, "lib", jar_base_name) + "\"/>\n"
 
     # copy our data paths over.
     text = text + self.copyDataPaths(dest_dir)

@@ -1,0 +1,20 @@
+
+Welcome to metamake!
+
+Metamake is a meta-build engine; it reads "targets" files that describe
+build targets, resolves inter-target dependencies, and turns the high-level
+target descriptions into a set of low-level actions to be performed via
+a build driver such as Apache Ant, and a front-end script (usually called
+'mmbuild') that wraps around the driver and provides an interface to the
+targets defined in your files.
+
+Metamake is designed to gracefully handle the "loose coupling" required
+of projects under active development; subprojects move around and filenames
+change, but metamake targets provide a higher-level interface to the
+build process that is more flexible than makefiles or Ant build files.
+
+To deploy metamake, see the INSTALL file for instructions.
+
+We hope you find metamake helpful to your productivity. Good luck!
+- Aaron Kimball and the metamake team
+

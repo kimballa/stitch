@@ -168,7 +168,12 @@ def datafiles_map(datafiles_path, basedir):
   The filenames input to this method may be absolute paths. They are chomped and
   made relative to basedir, which is usually set to os.getcwd()
   """
-  fh = open(datafiles_path, 'r')
+  try:
+    fh = open(datafiles_path, 'r')
+  except IOError:
+    # File couldn't be found or opened. There might not be any data files.
+    return {}
+
   ret = {}
   lines = 0
   try:

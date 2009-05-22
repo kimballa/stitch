@@ -326,6 +326,7 @@ ant_map[("%(phase)s", "//%(trail_slash_target)s")] = "%(ant_rule)s"
       <delete dir="${python-outdir}" />
     </target>
     <target name="python-prereqs">
+      <mkdir dir="${python-outdir}" />
     </target>
   """
 

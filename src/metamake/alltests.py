@@ -6,14 +6,11 @@ import sys
 import unittest
 
 import metamake.targets.packagetargettest as packagetargettest
-import makeSetupTest
 
 def testSuite():
   dir_comp_suite = unittest.makeSuite(packagetargettest.CopyDirTest, 'test')
-  make_setup_suite = unittest.makeSuite(makeSetupTest.MakeSetupTest, 'test')
 
   alltests = unittest.TestSuite([dir_comp_suite,
-                                 make_setup_suite,
                                  ])
   return alltests
 

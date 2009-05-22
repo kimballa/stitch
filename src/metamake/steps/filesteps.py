@@ -103,7 +103,7 @@ class CopyDir(step.Step):
         due to the non-deterministic order in which Targets files are consumed.
     """
 
-    CopyDir.__permanent_excludes = []
+    CopyDir.__permanent_excludes = set()
 
 
   @staticmethod

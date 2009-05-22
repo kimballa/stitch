@@ -1,0 +1,8 @@
+
+To install metamake, run the following commands:
+
+./bin/selfhosted-metamake
+./mmbuild -Drelease=true
+cd build/redist/metamake-*-test/
+sudo python setup.py install
+
