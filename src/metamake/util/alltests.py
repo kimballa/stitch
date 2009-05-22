@@ -1,5 +1,3 @@
-#!/usr/bin/python
-#
 # (c) Copyright 2009 Cloudera, Inc.
 #
 # AllTests for metamake.util

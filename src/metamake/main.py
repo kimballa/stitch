@@ -1,6 +1,4 @@
-#!/usr/bin/env python2.5
-#
-# (c) Copyright 2008 Cloudera, Inc.
+# (c) Copyright 2009 Cloudera, Inc.
 #
 # metamake [--generator GeneratorName ]
 #

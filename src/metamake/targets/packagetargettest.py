@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # (c) Copyright 2009 Cloudera, Inc.
 #
 # Unit test cases for PackageTarget and Steps

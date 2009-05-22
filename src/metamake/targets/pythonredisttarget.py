@@ -163,6 +163,7 @@ class PythonRedistTarget(pythontarget.PythonBaseTarget):
       basePath = basePath + os.sep
     return basePath
 
+
   def get_assembly_dir(self):
     """ return the dir where we copied hadoop to and built it in. Ensure
         that this ends with a '/' so PackageTargets can use it"""
@@ -218,12 +219,14 @@ class PythonRedistTarget(pythontarget.PythonBaseTarget):
         assert not c.filename.__contains__("\t")
         assert not c.install_dir.__contains__("\t")
         ret.append(self.create_echo_statement(file_path, "%s\t%s" \
-            % (self.normalize_user_path(c.filename, is_dest_path=True), c.install_dir)))
+            % (self.normalize_user_path(c.filename, is_dest_path=True, include_basedir=False), \
+            c.install_dir)))
       elif hasattr(c, "install_dir") and hasattr(c, "dirname"):
         assert not c.dirname.__contains__("\t")
         assert not c.install_dir.__contains__("\t")
         ret.append(self.create_echo_statement(file_path, "%s\t%s" \
-            % (os.path.join(self.normalize_user_path(c.dirname, is_dest_path=True), "**"),
+            % (os.path.join(self.normalize_user_path(c.dirname, is_dest_path=True, \
+            include_basedir=False), "**"),
             c.install_dir)))
     return '\n'.join(ret)
 
@@ -282,7 +285,7 @@ class PythonRedistTarget(pythontarget.PythonBaseTarget):
     # TODO(aaron): Make distutils setup.py production a step/action.
     if self.use_dist_utils:
       if self.output_source_root != None and len(self.output_source_root) > 0:
-        source_root = self.output_source_root
+        source_root = self.normalize_user_path(self.output_source_root)
       else:
         source_root = "."
 

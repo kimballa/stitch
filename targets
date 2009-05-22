@@ -6,33 +6,29 @@
 # Default target: build a package distribution for metamake
 metamake = PythonRedistTarget(
   package_name = "metamake",
-  required_targets = [ ":src" ],
   version = ":version",
   use_dist_utils = True,
   steps = [
+    # Copy files into assembly directory
+    CopyDir(src_dir="src", dest_dir="$/"),
+    CopyDir(src_dir="etc", dest_dir="$/etc"),
+    CopyDir(src_dir="lib", dest_dir="$/lib"),
+    CopyFile(src_file="%(srcdir)/bin/metamake", dest_dir="$/bin"),
+
     # Mark non-python-source files that need to be packaged
-    AddDistUtilsDataDir("%(srcdir)/etc", "/etc/metamake"),
-    AddDistUtilsDataDir("%(srcdir)/lib", "/usr/lib/metamake"),
-    AddDistUtilsDataFile("%(srcdir)/bin/metamake", "/usr/bin/"),
+    AddDistUtilsDataFile("bin/metamake", "/usr/bin/"),
+    AddDistUtilsDataDir("etc/", "/etc/metamake"),
+    AddDistUtilsDataDir("lib/", "/usr/lib/metamake"),
   ])
 
 
 # Target defining the version number for metamake
 version = VerStringTarget(version = "0.1.0")
 
-# Target describing all python sources used by metamake
-src = PythonTarget(
-  sources = ["src/makeJava.py",
-             "src/checkmanifest",
-             "src/copyPy.py",
-             "src/makePy.py",
-             "src/makeSetup.py",
-             "src/makeVer.py",
-             "src/metamake/"])
 
 # To execute unit tests, run './build :test' or './build --phase test' 
 test = PythonTestTarget(
-  sources = ["src/metamake" ],
+  sources = ["src/metamake/" ],
   main_module = "metamake.alltests")
 
 # virtual target to define nested targets
