@@ -1,9 +1,25 @@
-# /usr/bin/python
+#!/usr/bin/python
 #
 # (c) Copyright 2009 Cloudera, Inc.
 #
 
-metamake = PythonTarget(
+# Default target: build a package distribution for metamake
+metamake = PythonRedistTarget(
+  package_name = "metamake",
+  required_targets = [ ":src" ],
+  version = ":version",
+  use_dist_utils = True,
+  steps = [
+    AddDistUtilsDataDir("%(srcdir)/etc", "/etc/metamake"),
+    AddDistUtilsDataDir("%(srcdir)/lib", "/usr/lib/metamake"),
+  ])
+
+
+# Target defining the version number for metamake
+version = VerStringTarget(version = "0.1.0")
+
+# Target describing all python sources used by metamake
+src = PythonTarget(
   sources = ["src/metamake",
              "src/makeJava.py",
              "src/checkmanifest",
@@ -11,26 +27,14 @@ metamake = PythonTarget(
              "src/makePy.py",
              "src/makeSetup.py",
              "src/makeVer.py",
-             "src/com/"],
-  required_targets = [ "//python/Common" ])
+             "src/metamakelib/"])
 
+# To execute unit tests, run './build :test' or './build --phase test' 
+test = PythonTestTarget(
+  sources = ["src/metamakelib" ]
+  main_module = "metamakelib.alltests")
 
-metamake_pyunit = PythonTestTarget(
-  sources = ["test/com",
-             "test/alltests.py",
-             "test/makeSetupTest.py"],
-  main_module = "alltests",
-  required_targets = [ ":metamake",
-                      "//python/Common" ])
-
-
+# virtual target to define nested targets
 ProjectList(required_targets=[
   "TestTargets"])
-
-
-release = PythonRedistTarget(
-  package_name = "metamake",
-  required_targets = [ ":metamake" ],
-  use_dist_utils = True)
-
 
