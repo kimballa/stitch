@@ -366,8 +366,7 @@ ant_map[("%(phase)s", "//%(trail_slash_target)s")] = "%(ant_rule)s"
       str = str + " <fail message=\"Unit tests failed\" if=\"failed\" />\n"
     elif phase == "python-build":
       str = str + """
-        <exec executable="python" failonerror="true">
-          <arg file="${python-compiler}" />
+        <exec executable="${python-compiler}" failonerror="true">
           <arg value="${python-outdir}" />
         </exec>
       """

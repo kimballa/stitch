@@ -38,9 +38,8 @@ class PythonBaseTarget(AntTarget):
     """ copy source code with the python copier to a destination dir """
 
     text = ""
-    text = text + "  <exec executable=\"python\"\n"
+    text = text + "  <exec executable=\"${python-copier}\"\n"
     text = text + "    failonerror=\"true\">\n"
-    text = text + "    <arg file=\"${python-copier}\" />\n"
     text = text + "    <arg value=\"" + src + "\" />\n"
     text = text + "    <arg value=\"" + dest + "\" />\n"
     text = text + "  </exec>\n"

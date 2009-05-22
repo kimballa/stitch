@@ -514,9 +514,8 @@ class JavaTarget(AntTarget):
     text = text + self.copyDataPaths(dest_dir)
 
     # finally, make the executable.
-    text = text + "  <exec executable=\"python\"\n"
+    text = text + "  <exec executable=\"${make-java-script}\"\n"
     text = text + "    failonerror=\"true\">\n"
-    text = text + "    <arg value=\"${make-java-script}\" />\n"
     text = text + "    <arg value=\"--mainclass\"/>\n"
     text = text + "    <arg value=\"" + self.getMainClass() + "\"/>\n"
     text = text + "    <arg value=\"--exec\"/>\n"
