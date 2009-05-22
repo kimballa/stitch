@@ -4,7 +4,10 @@
 *.pyo
 
 # build output directory is not versioned
-/bin
+/build
+
+# metamake build script is not versioned
+/mmbuild
 
 # tmp files from editors
 *~

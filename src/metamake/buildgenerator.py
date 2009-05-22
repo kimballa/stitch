@@ -11,9 +11,13 @@ import stat
 import metamake.antgenerator as antgenerator
 import metamake.generator as generator
 import metamake.paths as paths
+import metamake.propstack as propstack
 
 # the name of the script to emit to do the building.
-BUILD_SCRIPT_NAME="build"
+antprops = propstack.get_properties()
+DEFAULT_BUILD_SCRIPT_NAME = "mmbuild"
+BUILD_SCRIPT_NAME = antprops.getProperty("build-script", DEFAULT_BUILD_SCRIPT_NAME)
+
 
 class BuildGenerator(generator.Generator):
   """ Generates a build script which will recursively

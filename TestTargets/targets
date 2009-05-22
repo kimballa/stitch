@@ -36,8 +36,6 @@ dir1 = CopyDir(src_dir="somedir")
 # directory component that goes in a subdir
 dir2 = CopyDir(src_dir="otherdir", dest_dir="$/subdir")
 
-# output target: get the wikipedia jar in here.
-out1 = IncludeOutput(target_name="//java/Wikipedia")
 
 dummy_ver = VerStringTarget(version="0.0.1")
 
@@ -52,7 +50,7 @@ dummyPackage = PackageTarget(
     file4,
     dir1,
     dir2,
-    out1],
+    ],
   manifest_file = "dummy-manifest")
 
 

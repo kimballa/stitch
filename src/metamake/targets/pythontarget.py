@@ -47,7 +47,7 @@ class PythonBaseTarget(AntTarget):
     return text
 
 
-  def buildAntRule(self, rule, outPath="${pythonoutdir}"):
+  def buildAntRule(self, rule, outPath="${python-outdir}"):
     """ generate the compilation rule. This is the same as the code from
         PythonTarget() """
 
@@ -98,10 +98,10 @@ class PythonTarget(PythonBaseTarget):
     return self.sources
 
   def getOutputPaths(self):
-    return [ "${pythonoutdir}/" ]
+    return [ "${python-outdir}/" ]
 
   def get_assembly_dir(self):
-    return "${pythonoutdir}/"
+    return "${python-outdir}/"
 
   def get_ant_rule_map(self):
     # note: no cleanAntRules() because python-clean is a specially-generated
@@ -164,10 +164,10 @@ class PythonTestTarget(PythonBaseTarget):
     }
 
   def getOutputPaths(self):
-    return [ "${pythonoutdir}/" ]
+    return [ "${python-outdir}/" ]
 
   def getFullBuilddirectory(self):
-    return "${pythonoutdir}/"
+    return "${python-outdir}/"
 
 
   def testShellAntRule(self, rule, mainName):
@@ -195,7 +195,7 @@ class PythonTestTarget(PythonBaseTarget):
     text = text + "  <exec executable=\"python\""
     text = text + "    timeout=\"${python-test-timeout}\"\n"
     text = text + "    resultproperty=\"" + rule + "-result-prop\"\n"
-    text = text + " dir=\"${pythonoutdir}\" failonerror=\"false\">\n"
+    text = text + " dir=\"${python-outdir}\" failonerror=\"false\">\n"
     text = text + "    <arg value=\"-m\" />\n"
     text = text + "    <arg value=\"" + self.main_module + "\"/>\n"
     text = text + "  </exec>\n"

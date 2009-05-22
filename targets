@@ -10,8 +10,10 @@ metamake = PythonRedistTarget(
   version = ":version",
   use_dist_utils = True,
   steps = [
+    # Mark non-python-source files that need to be packaged
     AddDistUtilsDataDir("%(srcdir)/etc", "/etc/metamake"),
     AddDistUtilsDataDir("%(srcdir)/lib", "/usr/lib/metamake"),
+    AddDistUtilsDataFile("%(srcdir)/bin/metamake", "/usr/bin/"),
   ])
 
 
@@ -27,11 +29,11 @@ src = PythonTarget(
              "src/makePy.py",
              "src/makeSetup.py",
              "src/makeVer.py",
-             "src/metamakelib/"])
+             "src/metamake/"])
 
 # To execute unit tests, run './build :test' or './build --phase test' 
 test = PythonTestTarget(
-  sources = ["src/metamakelib" ]
+  sources = ["src/metamakelib" ],
   main_module = "metamakelib.alltests")
 
 # virtual target to define nested targets

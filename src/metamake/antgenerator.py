@@ -8,6 +8,7 @@ import os
 
 import metamake.generator as generator
 import metamake.paths as paths
+import metamake.propstack as propstack
 
 def unique(lst):
   """ uniquify a list of strings """
@@ -67,9 +68,16 @@ class AntGenerator(generator.Generator):
 
   def ensureHandle(self):
     if self.handle == None:
-      if not os.path.exists("bin"):
-        os.mkdir("bin")
-      self.handle = open("bin/build.xml", "w")
+      # parse the properties files that govern this build tree
+      # to determine the build directory. Then put build.xml in
+      # there.
+      antprops = propstack.get_properties()
+
+      build_outputs_dir = antprops.getProperty("outsubdir", "build")
+
+      if not os.path.exists(build_outputs_dir):
+        os.mkdir(build_outputs_dir)
+      self.handle = open(os.path.join(build_outputs_dir, "build.xml"), "w")
 
   def closeHandle(self):
     if self.handle != None:
@@ -178,8 +186,8 @@ class AntGenerator(generator.Generator):
       <include name="%(targetsfile)s" />
       <include name="*/%(targetsfile)s" />
       <include name="**/%(targetsfile)s" />
-      <exclude name="bin/*" />
-      <exclude name="bin/**" />
+      <exclude name="${outdir}/*" />
+      <exclude name="${outdir}/**" />
     </srcfiles>
   </uptodate>
 </target>
@@ -315,7 +323,7 @@ ant_map[("%(phase)s", "//%(trail_slash_target)s")] = "%(ant_rule)s"
     if self.has_python:
       text = text + """
     <target name="python-clean" description="Clean python sources">
-      <delete dir="${pythonoutdir}" />
+      <delete dir="${python-outdir}" />
     </target>
     <target name="python-prereqs">
     </target>
@@ -359,7 +367,7 @@ ant_map[("%(phase)s", "//%(trail_slash_target)s")] = "%(ant_rule)s"
       str = str + """
         <exec executable="python" failonerror="true">
           <arg file="${python-compiler}" />
-          <arg value="${pythonoutdir}" />
+          <arg value="${python-outdir}" />
         </exec>
       """
     elif phase == "findbugs":
@@ -386,6 +394,10 @@ ant_map[("%(phase)s", "//%(trail_slash_target)s")] = "%(ant_rule)s"
   def getTopLevelScript(self, allTargets):
     """ Return the top-level script steps to put into
         the main 'build' script to run ant generated actions """
+
+    antprops = propstack.get_properties()
+    build_dir = antprops.getProperty("outsubdir", "build")
+
     text = """
 
 def formatProperties():
@@ -410,7 +422,7 @@ def run_ant_target(ant_target):
       classpath = classpath + ":"
     classpath = classpath + "/usr/share/ant/lib/ant.jar"
     os.environ["CLASSPATH"] = classpath
-  callString = "ant -f bin/build.xml " + formatProperties() + ant_target
+  callString = "ant -f %(BUILD_DIR)s/build.xml " + formatProperties() + ant_target
   ret = os.system(callString)
   if ret > 0:
     sys.exit(1)
@@ -448,7 +460,7 @@ def ant_topLevelAnt(phase, target):
 
 target_handlers.append(ant_topLevelAnt)
 phase_handlers.append(ant_phase)
-"""
+""" % { "BUILD_DIR" : build_dir }
 
     text = text + self.getBuildScriptMap(allTargets)
 
