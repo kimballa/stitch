@@ -22,8 +22,7 @@ version = VerStringTarget(version = "0.1.0")
 
 # Target describing all python sources used by metamake
 src = PythonTarget(
-  sources = ["src/metamake",
-             "src/makeJava.py",
+  sources = ["src/makeJava.py",
              "src/checkmanifest",
              "src/copyPy.py",
              "src/makePy.py",
@@ -33,8 +32,8 @@ src = PythonTarget(
 
 # To execute unit tests, run './build :test' or './build --phase test' 
 test = PythonTestTarget(
-  sources = ["src/metamakelib" ],
-  main_module = "metamakelib.alltests")
+  sources = ["src/metamake" ],
+  main_module = "metamake.alltests")
 
 # virtual target to define nested targets
 ProjectList(required_targets=[
