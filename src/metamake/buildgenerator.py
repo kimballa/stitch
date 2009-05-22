@@ -31,7 +31,6 @@ class BuildGenerator(generator.Generator):
       debug         Compiles source in debug mode
       clean         Cleans compiled files
       test          Runs test batteries
-      refresh       Refreshes the build script with metamake
 
 
       If an ant build file is created, it offers the
@@ -231,22 +230,6 @@ target_handlers = []
 phase_handlers = []
 
 phase = "default"
-
-def refresh(phase, target):
-  global lookup_only
-  if target == "refresh":
-    if lookup_only:
-      return True
-    else:
-      # TODO(aaron): Remove this hardcoded path dependency.
-      ret = os.system("python/Build/install-metamake --quiet")
-      if ret > 0:
-        sys.exit(1)
-      os.execl("bin/python/metamake", "bin/python/metamake")
-  else:
-    raise Exception("Doesn't handle this")
-
-target_handlers.append(refresh)
 
 runFlags = {}
 def run(key):
