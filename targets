@@ -1,0 +1,36 @@
+# /usr/bin/python
+#
+# (c) Copyright 2009 Cloudera, Inc.
+#
+
+metamake = PythonTarget(
+  sources = ["src/metamake",
+             "src/makeJava.py",
+             "src/checkmanifest",
+             "src/copyPy.py",
+             "src/makePy.py",
+             "src/makeSetup.py",
+             "src/makeVer.py",
+             "src/com/"],
+  required_targets = [ "//python/Common" ])
+
+
+metamake_pyunit = PythonTestTarget(
+  sources = ["test/com",
+             "test/alltests.py",
+             "test/makeSetupTest.py"],
+  main_module = "alltests",
+  required_targets = [ ":metamake",
+                      "//python/Common" ])
+
+
+ProjectList(required_targets=[
+  "TestTargets"])
+
+
+release = PythonRedistTarget(
+  package_name = "metamake",
+  required_targets = [ ":metamake" ],
+  use_dist_utils = True)
+
+

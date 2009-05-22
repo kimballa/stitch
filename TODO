@@ -1,0 +1,9 @@
+
+
+- need interface of methods to retrieve information about a target
+  e.g., getOutputs("java/FooProj:BarTarget")
+
+- include a target to `find $srcroot -name "*.pyc" -delete`
+
+- long term: Targets files should be able to make Maven pom files
+

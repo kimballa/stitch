@@ -1,0 +1,99 @@
+# /usr/bin/python
+#
+# (c) Copyright 2008 Cloudera, Inc.
+#
+# This contains a bunch of targets which exercise aspects of the
+# metamake system. They build dummy outputs that we can look at to
+# check for sanity.
+
+
+# TODO(aaron): If you add a package to this file for unit testing purposes,
+# add to this list too.
+allPackages = EmptyTarget(
+  required_targets  = [
+    ":dummyPackage",
+    ":excludePkg",
+    ":subpackage_test"
+  ])
+
+# steps for the dummy package
+
+# file that just goes in the base dir
+file1 = CopyFile(src_file="foo")
+
+# file that goes in a subdir
+file2 = CopyFile(src_file="bar", dest_dir="$/files")
+
+# check that subdir can have a trailing slash
+file3 = CopyFile(src_file="baz", dest_dir="$/files/")
+
+# check that an input file can be in a subdir
+file4 = CopyFile(src_file="subdir/quux", dest_dir="$/files")
+
+# directory component
+dir1 = CopyDir(src_dir="somedir")
+
+# directory component that goes in a subdir
+dir2 = CopyDir(src_dir="otherdir", dest_dir="$/subdir")
+
+# output target: get the wikipedia jar in here.
+out1 = IncludeOutput(target_name="//java/Wikipedia")
+
+dummy_ver = VerStringTarget(version="0.0.1")
+
+# test package target
+dummyPackage = PackageTarget(
+  package_name = "dummypackage",
+  version = ":dummy_ver",
+  steps = [
+    file1,
+    file2,
+    file3,
+    file4,
+    dir1,
+    dir2,
+    out1],
+  manifest_file = "dummy-manifest")
+
+
+
+# subpackage 1 - dummyPackage as a tarball
+dummyAsSubpackage1 = IncludePackage(target_name = ":dummyPackage",
+    include_zip = True,
+    dest_dir = "$/tarballs")
+
+# subpackage 2 - dummyPackage as raw files
+dummyAsSubpackage2 = IncludePackage(target_name = ":dummyPackage",
+    include_zip = False)
+
+# remove wikipedia.jar from the result
+delete_wikipedia = Remove(
+  name = "$/wikipedia.jar")
+
+subpackage_ver = VerStringTarget(version="0.0.1")
+
+# subpackage test - test that packages can include one another
+subpackage_test = PackageTarget(
+  package_name = "subpackage_test",
+  version = ":subpackage_ver",
+  steps = [
+    dummyAsSubpackage1,
+    dummyAsSubpackage2,
+    delete_wikipedia
+  ],
+  manifest_file = "subpackage-manifest")
+
+
+# test CopyDir's ability to exclude wildcards
+excludePkg = PackageTarget(
+  package_name = "excludes",
+  version = ":subpackage_ver", # Note that it's ok to link versions like this.
+  steps = [
+    CopyDir(
+      src_dir="exclude_test",
+      dest_dir="$/",
+      exclude_patterns = [ "throw-*" ])
+  ],
+  manifest_file = "exclude-manifest")
+
+

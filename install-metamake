@@ -1,0 +1,49 @@
+#!/bin/bash
+#
+# (C) Copyright 2009 Cloudera, Inc.
+#
+# self-hosting install file to get metamake into the bin/ dir
+# so that we can actually run it and build the rest of the
+# world.
+#
+# Execute this from wherever and it will set up metamake using
+# the default relative path to the bindir.
+
+bin=`dirname $0`
+bin=`cd "${bin}" && pwd`
+
+finalTarget="bin/python"
+target="${bin}/../../${finalTarget}"
+mkdir -p "${target}"
+
+if [ ! -x "${bin}/src/makePy.py" ]; then
+  echo "Error: need executable ${bin}/src/makePy.py"
+  exit 1
+fi
+
+if [ ! -x "${bin}/src/copyPy.py" ]; then
+  echo "Error: need executable ${bin}/src/copyPy.py"
+  exit 1
+fi
+
+# copy metamake itself.
+"${bin}"/src/copyPy.py ${bin}/src/metamake "${target}"
+"${bin}"/src/copyPy.py ${bin}/../Common/src/com/ "${target}"
+"${bin}"/src/copyPy.py ${bin}/src/com/ "${target}"
+
+# copy utility programs.
+"${bin}"/src/copyPy.py ${bin}/src/trimspaces "${target}"
+"${bin}"/src/copyPy.py ${bin}/src/checkmanifest "${target}"
+"${bin}"/src/copyPy.py ${bin}/src/makePy.py "${target}"
+"${bin}"/src/copyPy.py ${bin}/src/makeJava.py "${target}"
+"${bin}"/src/copyPy.py ${bin}/src/makeVer.py "${target}"
+
+# compile / syntax check it.
+"${bin}"/src/makePy.py "${target}"
+
+if [ "$1" != "--quiet" ]; then
+  echo "metamake has been installed. To set up a build tree, "
+  echo "cd to the root of your src/ tree and run:"
+  echo "${finalTarget}/metamake"
+fi
+

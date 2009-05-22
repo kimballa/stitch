@@ -1,0 +1,13 @@
+.
+./somesubdir
+./somesubdir/yo
+./tarballs
+./tarballs/dummypackage-0.0.1$TEST.tar.gz
+./hi
+./subdir
+./subdir/otherdirfile
+./foo
+./files
+./files/bar
+./files/quux
+./files/baz
