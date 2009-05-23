@@ -15,6 +15,11 @@ build process that is more flexible than makefiles or Ant build files.
 
 To deploy metamake, see the INSTALL file for instructions.
 
+If you're looking for help on metamake, check out our user list at:
+  metamake-users@googlegroups.com
+To post, you'll need to sign up at:
+  http://groups.google.com/group/metamake-users
+
 We hope you find metamake helpful to your productivity. Good luck!
 - Aaron Kimball and the metamake team
 
