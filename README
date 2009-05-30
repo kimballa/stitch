@@ -1,6 +1,7 @@
 
 Welcome to stitch!
 
+Stich will "stitch together" build targets in your development environment.
 Stitch is a meta-build engine; it reads "targets" files that describe
 build targets, resolves inter-target dependencies, and turns the high-level
 target descriptions into a set of low-level actions to be performed via
