@@ -338,7 +338,6 @@ class AntTarget(Target):
       for data_path in self.data_paths:
         full_data_path = self.normalize_user_path(data_path)
         text = text + "  <exec executable=\"rsync\">\n"
-        text = text + "    <arg value=\"--out-format=%%n%%L\"/>\n"
         text = text + "    <arg value=\"-r\" />\n"
         text = text + "    <arg value=\"--copy-links\" />\n"
         text = text + "    <arg value=\"--perms\" />\n"

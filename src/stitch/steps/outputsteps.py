@@ -74,7 +74,6 @@ class IncludePackage(step.Step):
       text = """
   <mkdir dir="%(destdir)s" />
   <exec executable="rsync" failonerror="true">
-    <arg value="--out-format=%%n%%L" />
     <arg value="-r" />
     <arg value="--update" />
     <arg value="--copy-links" />
@@ -93,7 +92,6 @@ class IncludePackage(step.Step):
       text = """
   <mkdir dir="%(destdir)s" />
   <exec executable="rsync" failonerror="true">
-    <arg value="--out-format=%%n%%L" />
     <arg value="-r" />
     <arg value="--update" />
     <arg value="--copy-links" />
@@ -155,7 +153,6 @@ class IncludeOutput(step.Step):
       for src in copySources:
         text = text + """
   <exec executable="rsync" failonerror="true">
-    <arg value="--out-format=%%n%%L" />
     <arg value="-r" />
     <arg value="--update" />
     <arg value="--copy-links" />

@@ -62,7 +62,6 @@ class CopyFile(step.Step):
     text = """
   <mkdir dir="%(destdir)s" />
   <exec executable="rsync" failonerror="true">
-    <arg value="--out-format=%%n%%L" />
     <arg value="--update" />
     <arg value="--copy-links" />
     <arg value="--perms" />
@@ -169,7 +168,6 @@ class CopyDir(step.Step):
     text = """
   <mkdir dir="%(destdir)s" />
   <exec executable="rsync" failonerror="true">
-    <arg value="--out-format=%%n%%L" />
     <arg value="-r" />
     <arg value="--%(updatemode)s" />
     <arg value="--copy-links" />
