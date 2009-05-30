@@ -3,7 +3,7 @@
 # (c) Copyright 2008 Cloudera, Inc.
 #
 # This contains a bunch of targets which exercise aspects of the
-# metamake system. They build dummy outputs that we can look at to
+# stitch system. They build dummy outputs that we can look at to
 # check for sanity.
 
 

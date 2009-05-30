@@ -3,9 +3,9 @@
 # (c) Copyright 2009 Cloudera, Inc.
 #
 
-# Default target: build a package distribution for metamake
-metamake = PythonRedistTarget(
-  package_name = "metamake",
+# Default target: build a package distribution for stitch
+stitch = PythonRedistTarget(
+  package_name = "stitch",
   version = ":version",
   use_dist_utils = True,
   steps = [
@@ -13,23 +13,23 @@ metamake = PythonRedistTarget(
     CopyDir(src_dir="src", dest_dir="$/"),
     CopyDir(src_dir="etc", dest_dir="$/etc"),
     CopyDir(src_dir="lib", dest_dir="$/lib"),
-    CopyFile(src_file="%(srcdir)/bin/metamake", dest_dir="$/bin"),
+    CopyFile(src_file="%(srcdir)/bin/stitch", dest_dir="$/bin"),
 
     # Mark non-python-source files that need to be packaged
-    AddDistUtilsDataFile("bin/metamake", "/usr/bin/"),
-    AddDistUtilsDataDir("etc/", "/etc/metamake"),
-    AddDistUtilsDataDir("lib/", "/usr/lib/metamake"),
+    AddDistUtilsDataFile("bin/stitch", "/usr/bin/"),
+    AddDistUtilsDataDir("etc/", "/etc/stitch"),
+    AddDistUtilsDataDir("lib/", "/usr/lib/stitch"),
   ])
 
 
-# Target defining the version number for metamake
+# Target defining the version number for stitch
 version = VerStringTarget(version = "0.1.0")
 
 
-# To execute unit tests, run './build :test' or './build --phase test' 
+# To execute unit tests, run './sbuild :test' or './sbuild --phase test' 
 test = PythonTestTarget(
-  sources = ["src/metamake/" ],
-  main_module = "metamake.alltests")
+  sources = ["src/stitch/" ],
+  main_module = "stitch.alltests")
 
 # virtual target to define nested targets
 ProjectList(required_targets=[

@@ -1,5 +1,0 @@
-#!/bin/sh
-
-python2.5 -m metamake.main "$@"
-
-

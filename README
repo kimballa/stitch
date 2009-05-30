@@ -1,25 +1,25 @@
 
-Welcome to metamake!
+Welcome to stitch!
 
-Metamake is a meta-build engine; it reads "targets" files that describe
+Stitch is a meta-build engine; it reads "targets" files that describe
 build targets, resolves inter-target dependencies, and turns the high-level
 target descriptions into a set of low-level actions to be performed via
 a build driver such as Apache Ant, and a front-end script (usually called
-'mmbuild') that wraps around the driver and provides an interface to the
+'sbuild') that wraps around the driver and provides an interface to the
 targets defined in your files.
 
-Metamake is designed to gracefully handle the "loose coupling" required
+Stitch is designed to gracefully handle the "loose coupling" required
 of projects under active development; subprojects move around and filenames
-change, but metamake targets provide a higher-level interface to the
+change, but stitch targets provide a higher-level interface to the
 build process that is more flexible than makefiles or Ant build files.
 
-To deploy metamake, see the INSTALL file for instructions.
+To deploy stitch, see the INSTALL file for instructions.
 
-If you're looking for help on metamake, check out our user list at:
-  metamake-users@googlegroups.com
+If you're looking for help on stitch, check out our user list at:
+  stitch-users@googlegroups.com
 To post, you'll need to sign up at:
-  http://groups.google.com/group/metamake-users
+  http://groups.google.com/group/stitch-users
 
-We hope you find metamake helpful to your productivity. Good luck!
-- Aaron Kimball and the metamake team
+We hope you find stitch helpful to your productivity. Good luck!
+- Aaron Kimball and the stitch team
 

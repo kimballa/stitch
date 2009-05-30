@@ -1,8 +1,8 @@
 
-To install metamake, run the following commands:
+To install stitch, run the following commands:
 
-./bin/selfhosted-metamake
-./mmbuild -Drelease=true
-cd build/redist/metamake-*-test/
+./bin/selfhosted-stitch
+./sbuild -Drelease=true
+cd build/redist/stitch-*-test/
 sudo python setup.py install
 

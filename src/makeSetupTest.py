@@ -2,10 +2,10 @@
 #
 # Unit test cases for makeSetup.py
 #
-# This is invoked by alltests.py, which is invoked by metamake:
+# This is invoked by alltests.py, which is invoked by stitch:
 #  $ cd $GIT
-#  $ bin/python/metamake
-#  $ ./build --phase test python/Build/:metamake_pyunit
+#  $ bin/python/stitch
+#  $ ./build --phase test python/Build/:stitch_pyunit
 
 import os
 import unittest

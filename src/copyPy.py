@@ -38,7 +38,7 @@ targetdir = sys.argv[2]
 numCopied = 0
 exitStatus = 0
 
-# code clone from metamake.util.dirutil
+# code clone from stitch.util.dirutil
 # put here because we need to self-host this file.
 def mkdirRecursive(newdir):
   """works the way a good mkdir should :)

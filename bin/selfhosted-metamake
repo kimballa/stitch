@@ -1,8 +1,0 @@
-#!/bin/sh
-
-bin=`dirname $0`
-bin=`cd $bin && pwd`
-
-PYTHONPATH=$bin/../src python2.5 -m metamake.main "$@"
-
-
