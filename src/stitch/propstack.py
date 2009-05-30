@@ -15,15 +15,39 @@
   results from all these files.
 """
 
+import os
+import sys
+
 import stitch.util.antproperties as antproperties
 
 __internal_properties = None
+__stitch_bin_dir = None
+
+
+def set_bin_dir_by_executable(executable):
+  global __stitch_bin_dir
+
+  real_executable = os.path.realpath(executable)
+  real_bin_dir = os.path.dirname(real_executable)
+  __stitch_bin_dir = real_bin_dir
+
+
+def get_stitch_home():
+  global __stitch_bin_dir
+
+  if __stitch_bin_dir == None:
+    __stitch_bin_dir = os.path.realpath(sys.argv[0])
+  stitch_home = os.path.join(__stitch_bin_dir, "..")
+  return os.path.abspath(stitch_home)
+
 
 def get_properties():
   global __internal_properties
 
   if __internal_properties == None:
     __internal_properties = antproperties.AntProperties()
+
+    stitch_home = get_stitch_home()
 
     try:
       h = open("my.properties")
@@ -40,11 +64,11 @@ def get_properties():
       pass # Couldn't read from build.properties; silently ignore it.
 
     try:
-      h = open("/etc/stitch/stitch-config.properties")
+      h = open(os.path.join(stitch_home, "etc/stitch-config.properties"))
       __internal_properties.load(h)
       h.close()
     except IOError:
-      print "Warning: Could not load /etc/stitch/stitch-config.properties"
+      print "Warning: Could not load " + os.path.join(stitch_home, "etc/stitch-config.properties")
 
   return __internal_properties
 

@@ -25,6 +25,7 @@ from stitch.buildgenerator import BuildGenerator
 import stitch.allgenerators as allgenerators
 import stitch.signore as signore
 import stitch.paths as paths
+import stitch.propstack as propstack
 
 ############## some helper functions ####################
 
@@ -98,6 +99,12 @@ def main(argv):
       elif argv[i] == "--help":
         printUsage()
         return 0
+      elif argv[i] == "--executable":
+        if i == len(argv) - 1:
+          print "Error: executable name required."
+          return 1
+        i = i + 1
+        propstack.set_bin_dir_by_executable(argv[i])
       elif argv[i] == "-g" or argv[i] == "--generator":
         if i == len(argv) - 1:
           print "Error: generator name required. See --help for usage."

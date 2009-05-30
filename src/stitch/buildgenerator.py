@@ -13,10 +13,7 @@ import stitch.generator as generator
 import stitch.paths as paths
 import stitch.propstack as propstack
 
-# the name of the script to emit to do the building.
-antprops = propstack.get_properties()
 DEFAULT_BUILD_SCRIPT_NAME = "sbuild"
-BUILD_SCRIPT_NAME = antprops.getProperty("build-script", DEFAULT_BUILD_SCRIPT_NAME)
 
 
 class BuildGenerator(generator.Generator):
@@ -62,6 +59,10 @@ class BuildGenerator(generator.Generator):
     self.generators = []
 
     self.phases = [ ]
+
+    antprops = propstack.get_properties()
+    # the name of the script to emit to do the building.
+    self.BUILD_SCRIPT_NAME = antprops.getProperty("build-script", DEFAULT_BUILD_SCRIPT_NAME)
 
 
   def isPublic(self):
@@ -115,7 +116,7 @@ class BuildGenerator(generator.Generator):
     handle = None
     try:
       try:
-        handle = open(BUILD_SCRIPT_NAME, "w")
+        handle = open(self.BUILD_SCRIPT_NAME, "w")
 
         # write out our script preamble
         handle.write(self.preamble())
@@ -139,7 +140,7 @@ class BuildGenerator(generator.Generator):
 
     # make sure the build script is executable.
     try:
-      os.chmod(BUILD_SCRIPT_NAME,
+      os.chmod(self.BUILD_SCRIPT_NAME,
           stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR
           | stat.S_IRGRP | stat.S_IXGRP
           | stat.S_IROTH | stat.S_IXOTH)

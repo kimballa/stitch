@@ -3,6 +3,6 @@
 bin=`dirname $0`
 bin=`cd $bin && pwd`
 
-PYTHONPATH=$bin/../src python2.5 -m stitch.main "$@"
+PYTHONPATH=$bin/../src:$PYTHONPATH python2.5 -m stitch.main --executable "$bin/`basename $0`" "$@"
 
 

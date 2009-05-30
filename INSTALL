@@ -3,6 +3,7 @@ To install stitch, run the following commands:
 
 ./bin/selfhosted-stitch
 ./sbuild -Drelease=true
-cd build/redist/stitch-*-test/
+cd build/redist/stitch-*
 sudo python setup.py install
+sudo ln -s /usr/share/stitch/bin/stitch /usr/bin/stitch
 

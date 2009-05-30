@@ -16,9 +16,9 @@ stitch = PythonRedistTarget(
     CopyFile(src_file="%(srcdir)/bin/stitch", dest_dir="$/bin"),
 
     # Mark non-python-source files that need to be packaged
-    AddDistUtilsDataFile("bin/stitch", "/usr/bin/"),
-    AddDistUtilsDataDir("etc/", "/etc/stitch"),
-    AddDistUtilsDataDir("lib/", "/usr/lib/stitch"),
+    AddDistUtilsDataFile("bin/stitch", "share/stitch/bin"),
+    AddDistUtilsDataDir("etc/", "share/stitch/etc"),
+    AddDistUtilsDataDir("lib/", "share/stitch/lib"),
   ])
 
 
@@ -32,6 +32,6 @@ test = PythonTestTarget(
   main_module = "stitch.alltests")
 
 # virtual target to define nested targets
-ProjectList(required_targets=[
-  "TestTargets"])
+#ProjectList(required_targets=[
+#  "TestTargets"])
 

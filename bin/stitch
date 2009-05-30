@@ -1,5 +1,8 @@
 #!/bin/sh
 
-python2.5 -m stitch.main "$@"
+bin=`dirname $0`
+bin=`cd $bin && pwd`
+
+python2.5 -m stitch.main --executable "$bin/`basename $0`" "$@"
 
 
