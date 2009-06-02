@@ -283,10 +283,10 @@ ant_map[("%(phase)s", "//%(trail_slash_target)s")] = "%(ant_rule)s"
      the build script in the srcroot (one level up from here)
 -->
 <project name="world" default="default" basedir="..">
+  <property name="stitch-home" value="%(stitchhome)s" />
   <property file="my.properties" />
   <property file="build.properties" />
   <property file="%(stitchprops)s" />
-  <property name="stitch-home" value="%(stitchhome)s" />
 
   <description>
     This is the master Ant Buildfile for the Cloudera workspace
