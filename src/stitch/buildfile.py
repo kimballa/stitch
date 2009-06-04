@@ -7,6 +7,7 @@
 #
 
 import stitch.paths as paths
+import stitch.propstack as propstack
 
 import os
 
@@ -35,6 +36,96 @@ def setCurBuildFile(buildfile):
   global curBuildFile
   curBuildFile = buildfile
 
+
+# Starts as None; turns into a list populated only after a get_extensions()
+# is performed and that calls load_extensions() in turn.
+__extension_objs = None
+
+def exec_for_env(filename, with_exts=False):
+  """ Load a python file and execute it, returning a dictionary of all the public
+      objects in their output environment.
+  """
+  import stitch.targets.alltargets as alltargets
+
+  handle = None
+  try:
+    try:
+      handle = open(filename)
+      scriptSource = handle.read()
+    except IOError, ioe:
+      print "Error: File " + filename + " could not be loaded."
+      print ioe
+      return {}
+  finally:
+    if handle != None:
+      handle.close()
+
+  try:
+    code = compile(scriptSource, filename, 'exec')
+  except SyntaxError, se:
+    print "Syntax error evaluating " + self.path + ":"
+    print se
+    return {}
+
+  # set up environment in which to execute the script
+  globals = {}
+  locals = {}
+
+  # put the elements of the alltargets module in their environment.
+  for obj in dir(alltargets):
+    if not obj.startswith("__"):
+      globals[obj] = getattr(alltargets, obj)
+
+  if with_exts:
+    # put the elements of the extension modules in their environment.
+    globals.update(get_extensions())
+
+  # run the user's code. The objects created and named will
+  # be stored in the 'locals' dict for us to extract from.
+  exec code in globals, locals
+
+  public_objs = {}
+  for obj in locals:
+    if not obj.startswith("__"):
+      public_objs[obj] = locals[obj]
+  
+  return public_objs
+
+
+def load_extensions():
+  """ If there's a stitch-ext/ dir in the root of the build tree, load any
+      python files from there as modules and retain their environments to
+      load into all targets files we process.
+  """
+  global __extension_objs
+
+  # Clear existing extensions
+  __extension_objs = {}
+
+  props = propstack.get_properties()
+  ext_dir = props.getProperty("stitch-extensions")
+  if ext_dir == None:
+    return # no work to do.
+
+  if not os.path.exists(ext_dir):
+    return # no extensions in this project.
+
+  files = os.listdir(ext_dir)
+  for file in files:
+    if file.endswith(".py"):
+      # Load and execute this module, and incorporate its env dictionary
+      # into the master extension dictionary
+      print "Loading module:",file
+      __extension_objs.update(exec_for_env(os.path.join(ext_dir, file), with_exts=False))
+
+
+def get_extensions():
+  """ return the environment dictionary constructed from the user extensions """
+  global __extension_objs
+
+  if __extension_objs == None:
+    load_extensions()
+  return __extension_objs
 
 
 class BuildFile(object):
@@ -74,45 +165,12 @@ class BuildFile(object):
   def execute(self):
     """ Load the Targets file by running it in the context
         of the current module. """
+
     import stitch.targets.alltargets as alltargets
 
     setCurBuildFile(self)
 
-    handle = None
-    try:
-      try:
-        handle = open(self.path)
-        scriptSource = handle.read()
-      except IOError, ioe:
-        print "Error: Buildfile " + self.path + " could not be loaded."
-        print ioe
-        return
-    finally:
-      if handle != None:
-        handle.close()
-
-    try:
-      code = compile(scriptSource, self.path, 'exec')
-    except SyntaxError, se:
-      print "Syntax error evaluating " + self.path + ":"
-      print se
-      return
-
-    # set up environment in which to execute the script
-    globals = {}
-    locals = {}
-
-    # put the elements of the targets module in their
-    # environment
-    for obj in dir(alltargets):
-      if not obj.startswith("__"):
-        globals[obj] = getattr(alltargets, obj)
-
-    # run the user's Targets file. The objects created and named will
-    # be stored in the 'locals' dict for us to extract from later
-    exec code in globals, locals
-
-    self.userObjects = locals
+    self.userObjects = exec_for_env(self.path, with_exts=True)
 
     # objects currently have "__anonymous" names. put our own
     # canonical name ahead of these.

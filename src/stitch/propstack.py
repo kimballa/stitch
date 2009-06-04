@@ -47,6 +47,9 @@ def get_properties():
   if __internal_properties == None:
     __internal_properties = antproperties.AntProperties()
 
+    # Set the basedir first.
+    __internal_properties.setProperty("basedir", os.path.abspath(os.getcwd()))
+
     stitch_home = get_stitch_home()
 
     try:
