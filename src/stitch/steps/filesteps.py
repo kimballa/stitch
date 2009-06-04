@@ -30,12 +30,16 @@ class CopyFile(step.Step):
   def resolve_filenames(self, package, prepend_basedir=True):
     """ Return true (dest_dir, dest_file, src_file) tuple to use in the rule """
 
+    prepend_dest_basedir = prepend_basedir
+    prepend_src_basedir = prepend_basedir
+
     if self.dest_file != None and self.dest_dir != None:
       raise TargetError(package, "Error: CopyFile has both dest_dir and dest_file set")
     elif self.dest_file != None:
       if os.sep not in self.dest_file:
         # dest_file has no path component; put it directly in outdir.
         dest_dir = paths.OUTDIR_QUALIFIER
+        prepend_dest_basedir = False
       else:
         # dest_file has a path component; use it.
         dest_dir = os.path.dirname(self.dest_file) + os.sep
@@ -46,15 +50,17 @@ class CopyFile(step.Step):
     else:
       dest_dir = paths.OUTDIR_QUALIFIER
       dest_file = paths.OUTDIR_QUALIFIER
+      prepend_dest_basedir = False
 
     dest_dir = package.normalize_user_path(dest_dir, is_dest_path=True, \
-        include_basedir=prepend_basedir)
+        include_basedir=prepend_dest_basedir)
     dest_file = package.normalize_user_path(dest_file, is_dest_path=True, \
-        include_basedir=prepend_basedir)
+        include_basedir=prepend_dest_basedir)
     src_file = package.normalize_user_path(self.src_file, is_dest_path=False, \
-        include_basedir=prepend_basedir)
+        include_basedir=prepend_src_basedir)
 
     return (dest_dir, dest_file, src_file)
+
 
   def emitPackageOps(self, package):
 
