@@ -63,7 +63,7 @@ def exec_for_env(filename, with_exts=False):
   try:
     code = compile(scriptSource, filename, 'exec')
   except SyntaxError, se:
-    print "Syntax error evaluating " + self.path + ":"
+    print "Syntax error evaluating " + filename + ":"
     print se
     return {}
 
