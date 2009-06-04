@@ -42,14 +42,15 @@ class CopyFile(step.Step):
       dest_file = os.path.basename(self.dest_file)
     elif self.dest_dir != None:
       dest_dir = self.dest_dir
-      dest_file = os.path.basename(self.src_file)
+      dest_file = self.dest_dir # the 'where-to-copy' is just a dirname.
     else:
       dest_dir = paths.OUTDIR_QUALIFIER
-      dest_file = os.path.basename(self.src_file)
+      dest_file = paths.OUTDIR_QUALIFIER
 
     dest_dir = package.normalize_user_path(dest_dir, is_dest_path=True, \
         include_basedir=prepend_basedir)
-    dest_file = os.path.join(dest_dir, dest_file)
+    dest_file = package.normalize_user_path(dest_file, is_dest_path=True, \
+        include_basedir=prepend_basedir)
     src_file = package.normalize_user_path(self.src_file, is_dest_path=False, \
         include_basedir=prepend_basedir)
 
