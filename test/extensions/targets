@@ -1,0 +1,4 @@
+
+a = echoer.EchoTarget("aaa")
+b = echoer.EchoTarget("bbb")
+

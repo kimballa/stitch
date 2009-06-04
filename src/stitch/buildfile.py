@@ -10,6 +10,7 @@ import stitch.paths as paths
 import stitch.propstack as propstack
 
 import os
+import sys
 
 # build files are called this in every directory.
 DEFAULT_BUILD_FILENAME = "targets"
@@ -41,35 +42,14 @@ def setCurBuildFile(buildfile):
 # is performed and that calls load_extensions() in turn.
 __extension_objs = None
 
-def exec_for_env(filename, with_exts=False):
-  """ Load a python file and execute it, returning a dictionary of all the public
-      objects in their output environment.
+
+def get_globals(with_exts=False):
+  """ Return a dictionary to use as the 'globals' environment dict for
+      importing a module or executing a script/targets file
   """
   import stitch.targets.alltargets as alltargets
 
-  handle = None
-  try:
-    try:
-      handle = open(filename)
-      scriptSource = handle.read()
-    except IOError, ioe:
-      print "Error: File " + filename + " could not be loaded."
-      print ioe
-      return {}
-  finally:
-    if handle != None:
-      handle.close()
-
-  try:
-    code = compile(scriptSource, filename, 'exec')
-  except SyntaxError, se:
-    print "Syntax error evaluating " + filename + ":"
-    print se
-    return {}
-
-  # set up environment in which to execute the script
   globals = {}
-  locals = {}
 
   # put the elements of the alltargets module in their environment.
   for obj in dir(alltargets):
@@ -77,19 +57,10 @@ def exec_for_env(filename, with_exts=False):
       globals[obj] = getattr(alltargets, obj)
 
   if with_exts:
-    # put the elements of the extension modules in their environment.
+    # put the handles to the extension modules in their environment.
     globals.update(get_extensions())
 
-  # run the user's code. The objects created and named will
-  # be stored in the 'locals' dict for us to extract from.
-  exec code in globals, locals
-
-  public_objs = {}
-  for obj in locals:
-    if not obj.startswith("__"):
-      public_objs[obj] = locals[obj]
-  
-  return public_objs
+  return globals
 
 
 def load_extensions():
@@ -110,13 +81,24 @@ def load_extensions():
   if not os.path.exists(ext_dir):
     return # no extensions in this project.
 
-  files = os.listdir(ext_dir)
-  for file in files:
-    if file.endswith(".py"):
-      # Load and execute this module, and incorporate its env dictionary
-      # into the master extension dictionary
-      print "Loading module:",file
-      __extension_objs.update(exec_for_env(os.path.join(ext_dir, file), with_exts=False))
+  # Add the extension dir as a module import source
+  old_sys_path = sys.path
+  sys.path.append(ext_dir)
+
+  try:
+    # import all those files as modules
+    files = os.listdir(ext_dir)
+    for file in files:
+      if file.endswith(".py"):
+        modname = file[:-3] # chop of the extension to get module name
+        # Load and execute this module, and incorporate its env dictionary
+        # into the master extension dictionary
+        print "Loading module:", modname
+        mod = __import__(modname)
+        __extension_objs[modname] = mod
+  finally:
+    # restore the configured sys.path
+    sys.path = old_sys_path
 
 
 def get_extensions():
@@ -162,6 +144,45 @@ class BuildFile(object):
     """ Returns the filename for this build file """
     return self.path
 
+  def exec_for_env(self, filename, with_exts=False):
+    """ Load a python file and execute it, returning a dictionary of all the public
+        objects in their output environment.
+    """
+    handle = None
+    try:
+      try:
+        handle = open(filename)
+        scriptSource = handle.read()
+      except IOError, ioe:
+        print "Error: File " + filename + " could not be loaded."
+        print ioe
+        return {}
+    finally:
+      if handle != None:
+        handle.close()
+
+    try:
+      code = compile(scriptSource, filename, 'exec')
+    except SyntaxError, se:
+      print "Syntax error evaluating " + filename + ":"
+      print se
+      return {}
+
+    # set up environment in which to execute the script
+    globals = get_globals(with_exts)
+    locals = {}
+
+    # run the user's code. The objects created and named will
+    # be stored in the 'locals' dict for us to extract from.
+    exec code in globals, locals
+
+    public_objs = {}
+    for obj in locals:
+      if not obj.startswith("__"):
+        public_objs[obj] = locals[obj]
+    
+    return public_objs
+
   def execute(self):
     """ Load the Targets file by running it in the context
         of the current module. """
@@ -170,7 +191,7 @@ class BuildFile(object):
 
     setCurBuildFile(self)
 
-    self.userObjects = exec_for_env(self.path, with_exts=True)
+    self.userObjects = self.exec_for_env(self.path, with_exts=True)
 
     # objects currently have "__anonymous" names. put our own
     # canonical name ahead of these.

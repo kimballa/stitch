@@ -90,9 +90,9 @@ class StepBasedTarget(AntTarget):
 
   def get_assembly_top_dir(self):
     """ Returns the top-level directory for the package. The assembly dir
-        (packagename-version/) is a subdir of this one. """
+        is the same as this one. """
 
-    basePath = "${outdir}/" + self.getBuildDirectory()
+    basePath = "${redist-outdir}/" + self.getBuildDirectory()
     if not basePath.endswith(os.sep):
       basePath = basePath + os.sep
     return basePath
@@ -169,7 +169,6 @@ class StepBasedTarget(AntTarget):
       uptodate_prop = self.getSafeName() + "-is-uptodate"
       text = text + "<target name=\"" + rule + "-uptodate\"\n"
       text = text + depAntRules + ">\n"
-      text = text + "  <uptodate property=\"" + uptodate_prop + "\">\n"
 
       # Ant's uptodate task is somewhat stupid and can't deal with absolute paths
       # inside the srcfiles elements. Therefore we have to split up the input
@@ -190,20 +189,27 @@ class StepBasedTarget(AntTarget):
         (dir, filename) = os.path.split(path)
         grouped_paths[dir].append(filename)
 
-      for dir, filenames in grouped_paths.iteritems():
-        text += "    <srcfiles dir=\"%s\">\n" % dir
-        for filename in filenames:
-          text += "        <include name=\"%s\" />\n" % filename
-        text += "    </srcfiles>\n"
+      # Only emit an <uptodate> check if we actually have source files to check.
+      # If we don't, we just never set the property, meaning it's always dirty
+      # (like a Makefile PHONY target).
+      do_uptodate = len(grouped_paths.items()) > 0
+      if do_uptodate:
+        text = text + "  <uptodate property=\"" + uptodate_prop + "\">\n"
 
-      if self.create_tarball:
-        text = text + "    <mapper type=\"merge\" to=\"" + self.getPackageZip() + "\" />\n"
-      else:
-        text = text + "    <mapper type=\"merge\" to=\"" + self.getStampPath() + "\" />\n"
+        for dir, filenames in grouped_paths.iteritems():
+          text += "    <srcfiles dir=\"%s\">\n" % dir
+          for filename in filenames:
+            text += "        <include name=\"%s\" />\n" % filename
+          text += "    </srcfiles>\n"
 
-      text = text + "  </uptodate>\n"
-      text = text + "  <echo message=\"" + self.getCanonicalName() + " uptodate: ${" \
-          + uptodate_prop + "}\"/>\n"
+        if self.create_tarball:
+          text = text + "    <mapper type=\"merge\" to=\"" + self.getPackageZip() + "\" />\n"
+        else:
+          text = text + "    <mapper type=\"merge\" to=\"" + self.getStampPath() + "\" />\n"
+
+        text = text + "  </uptodate>\n"
+        text = text + "  <echo message=\"" + self.getCanonicalName() + " uptodate: ${" \
+            + uptodate_prop + "}\"/>\n"
       text = text + "</target>\n"
 
       text = text + "<target name=\"" + rule + "\" depends=\"" \

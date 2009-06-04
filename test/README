@@ -1,0 +1,3 @@
+
+Each subdirectory of this directory contains a "top-level" targets file that
+should be compiled with its own invocation of stitch
