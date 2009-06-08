@@ -31,12 +31,14 @@ class Exec(step.Step):
                              command. If they're newer than the last time it
                              was executed, this will rebuild the target.
                              Dirs must end with '/'.
+    env                 Opt  A dictionary of environment variables that should be
+                             set when running the command.
 
     Performs macro expansion per Target.substitute_macros() on all inputs.
   """
 
   def __init__(self, executable, arguments=None, dir=None, fail_on_error=True,
-      force_build=False, inputs=None):
+      force_build=False, inputs=None, env=None):
     step.Step.__init__(self)
 
     self.executable = executable
@@ -49,6 +51,8 @@ class Exec(step.Step):
       self.inputs = inputs
     else:
       self.inputs = []
+
+    self.env = env if env else {}
 
 
   def resolve(self, package):
@@ -89,6 +93,10 @@ class Exec(step.Step):
       for arg in self.arguments:
         arg = self.__substitute(arg, package)
         text = text + "     <arg value=\"" + arg + "\" />\n"
+
+    for key, val in self.env.iteritems():
+      val = self.__substitute(val, package)
+      text = text + "     <env key=\"" + key + "\" value=\"" + val + "\" />\n"
 
     text = text + "  </exec>\n"
     return text
