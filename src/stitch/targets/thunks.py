@@ -135,7 +135,7 @@ class Outputs(Thunk):
 
 ### The following thunks operate on other thunks. ###
 
-class FirstElem(Thunk):
+class Head(Thunk):
   """ Takes only a single entry from a list thunk and returns it (as a string) """
 
   def __init__(self, subthunk):
