@@ -527,7 +527,7 @@ class JavaTarget(AntTarget):
     text = text + "    <arg value=\"--dir\"/>\n"
     text = text + "    <arg value=\"" + dest_dir + "\"/>\n"
     if self.java_options != None:
-      java_opts = self.force(self.java_options):
+      java_opts = self.force(self.java_options)
       if len(java_opts) > 0:
         text = text + "    <arg value=\"--javaopts\"/>\n"
         text = text + "    <arg value=\"" + java_opts + "\"/>\n"
@@ -725,7 +725,7 @@ class JavaTestTarget(JavaBaseTarget):
     text = text + "  </classpath>\n"
 
     if self.java_options != None:
-      java_opts = self.force(self.java_options):
+      java_opts = self.force(self.java_options)
       if len(java_opts) > 0:
         text = text + "  <jvmarg line=\"" + java_opts + "\" />\n"
 

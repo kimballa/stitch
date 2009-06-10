@@ -34,7 +34,7 @@ class Thunk(object):
 
     if isinstance(result, list):
       return ",".join(result)
-    else
+    else:
       return result
 
 
