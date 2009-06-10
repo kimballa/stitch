@@ -163,3 +163,24 @@ class ToList(Thunk):
     return self.subthunk.lst_force(context)
 
 
+class Concat(Thunk):
+  """ Concatenate a list of thunk outputs into a single string """
+
+  def __init__(self, thunks):
+    self.thunks = thunks
+
+  def force(self, context):
+    out = []
+    for t in self.thunks:
+      if hasattr(t, "force"):
+        result = t.force(context)
+      else:
+        result = str(t)
+
+      if isinstance(result, list):
+        out.extend(result)
+      else:
+        out.append(result)
+    return "".join(out)
+
+

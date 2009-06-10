@@ -2,3 +2,12 @@
 a = echoer.EchoTarget("aaa")
 b = echoer.EchoTarget("bbb")
 
+c = echoer.EchoTarget(
+  Concat(["The retrieved name of the first target is '",
+          CanonicalName(":a"),
+          "'; it should be '//'"]))
+
+c = echoer.EchoTarget(
+  Concat(["The name of the second target is '",
+          CanonicalName(":b"),
+          "'; it should be '//:b'"]))
