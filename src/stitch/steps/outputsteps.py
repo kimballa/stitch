@@ -30,7 +30,7 @@ class IncludePackage(step.Step):
 
 
   def resolve(self, package):
-    pkg_target = package.getTargetByName(self.target_name)
+    pkg_target = package.getTargetByName(package.force(self.target_name))
     if self.include_zip:
       if not hasattr(pkg_target, "getPackageZip"):
         raise TargetError(package, "Error: Target " + pkg_target.getCanonicalName() \
@@ -50,13 +50,13 @@ class IncludePackage(step.Step):
     if self.dest_dir == None:
       dest_dir = paths.OUTDIR_QUALIFIER
     else:
-      dest_dir = self.dest_dir
+      dest_dir = package.force(self.dest_dir)
 
     dest_dir = package.normalize_user_path(dest_dir, is_dest_path=True)
 
-    pkgTarget = package.getTargetByName(self.target_name)
+    pkgTarget = package.getTargetByName(package.force(self.target_name))
     if pkgTarget == None:
-      raise TargetError(package, "Target not found: " + self.target_name)
+      raise TargetError(package, "Target not found: " + package.force(self.target_name))
 
     if self.include_zip:
       # just copy the zipfile into the destination
@@ -64,7 +64,7 @@ class IncludePackage(step.Step):
       try:
         zipFileName = pkgTarget.getPackageZip()
       except:
-        raise TargetError(package, "Target " + self.target_name \
+        raise TargetError(package, "Target " + package.force(self.target_name) \
             + " is not a package target (did you want an IncludeOutput?)")
 
       if zipFileName == None:
@@ -122,7 +122,7 @@ class IncludeOutput(step.Step):
 
 
   def resolve(self, package):
-    target = package.getTargetByName(self.target_name)
+    target = package.getTargetByName(package.force(self.target_name))
     copySources = target.outputPaths()
     for src in target.outputPaths():
       if src.endswith(os.sep):
@@ -138,13 +138,13 @@ class IncludeOutput(step.Step):
     if self.dest_dir == None:
       dest_dir = paths.OUTDIR_QUALIFIER
     else:
-      dest_dir = self.dest_dir
+      dest_dir = package.force(self.dest_dir)
 
     dest_dir = package.normalize_user_path(dest_dir, is_dest_path=True)
 
-    inTarget = package.getTargetByName(self.target_name)
+    inTarget = package.getTargetByName(package.force(self.target_name))
     if inTarget == None:
-      raise TargetError(package, "Target not found: " + self.target_name)
+      raise TargetError(package, "Target not found: " + package.force(self.target_name))
 
     text = ""
     copySources = inTarget.outputPaths()

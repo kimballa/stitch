@@ -41,7 +41,7 @@ class CompileHadoopStep(step.Step):
     # NOTE(aaron): This assumes that hadoop_dir is inside the sphere of
     # its own assembly dir, so the input files to that dir must be
     # uptodate-guarded by other CopyDirs, etc.
-    for patch_file in self.patch_plan:
+    for patch_file in package.force(self.patch_plan):
      package.resolved_input_file( \
          package.normalize_user_path(patch_file, is_dest_path=False, include_basedir=False))
 
@@ -76,7 +76,8 @@ class CompileHadoopStep(step.Step):
 
     # Directories where Hadoop will be patched and built from.
     if self.hadoop_dir != None:
-      hadoop_dest_dir = package.normalize_user_path(self.hadoop_dir, is_dest_path=False)
+      hadoop_dest_dir = package.normalize_user_path(package.force(self.hadoop_dir), \
+          is_dest_path=False)
     else:
       hadoop_dest_dir = package.get_assembly_dir()
 
@@ -85,7 +86,7 @@ class CompileHadoopStep(step.Step):
 
     # Apply patches and set the version number
     version = self.getVerString()
-    for patch in self.patch_plan:
+    for patch in package.force(self.patch_plan):
       text = text + self.__applyPatch(package, patch, hadoop_dest_dir)
 
     # parameters we set in Hadoop build process:
@@ -95,8 +96,11 @@ class CompileHadoopStep(step.Step):
     #              and tar.gz filenames.
     # Compile with -Dversion=($version)
     fullVersion = self.base_version
-    if self.patch_version != None and len(self.patch_version) > 0:
-      fullVersion = fullVersion + "-" + str(self.patch_version)
+    if self.patch_version != None:
+      patch_ver = str(package.force(self.patch_version))
+      if len(patch_ver) > 0:
+        fullVersion = fullVersion + "-" + patch_ver
+
     text = text + "  <exec executable=\"${ant-exec}\"\n"
     text = text + "    failonerror=\"true\"\n"
     text = text + "    dir=\"" + hadoop_dest_dir + "\">\n"

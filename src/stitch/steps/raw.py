@@ -19,6 +19,6 @@ class RawAntXml(step.Step):
 
 
   def emitPackageOps(self, package):
-    return package.expand_macros(self.step_xml)
+    return package.expand_macros(package.force(self.step_xml))
 
 

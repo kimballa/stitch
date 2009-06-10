@@ -36,17 +36,17 @@ class CopyFile(step.Step):
     if self.dest_file != None and self.dest_dir != None:
       raise TargetError(package, "Error: CopyFile has both dest_dir and dest_file set")
     elif self.dest_file != None:
-      if os.sep not in self.dest_file:
+      if os.sep not in package.force(self.dest_file):
         # dest_file has no path component; put it directly in outdir.
         dest_dir = paths.OUTDIR_QUALIFIER
         prepend_dest_basedir = False
       else:
         # dest_file has a path component; use it.
-        dest_dir = os.path.dirname(self.dest_file) + os.sep
-      dest_file = os.path.basename(self.dest_file)
+        dest_dir = os.path.dirname(package.force(self.dest_file)) + os.sep
+      dest_file = os.path.basename(package.force(self.dest_file))
     elif self.dest_dir != None:
-      dest_dir = self.dest_dir
-      dest_file = self.dest_dir # the 'where-to-copy' is just a dirname.
+      dest_dir = package.force(self.dest_dir)
+      dest_file = package.force(self.dest_dir) # the 'where-to-copy' is just a dirname.
     else:
       dest_dir = paths.OUTDIR_QUALIFIER
       dest_file = paths.OUTDIR_QUALIFIER
@@ -129,11 +129,11 @@ class CopyDir(step.Step):
     if self.dest_dir == None:
       dest_dir = paths.OUTDIR_QUALIFIER
     else:
-      dest_dir = self.dest_dir
+      dest_dir = package.force(self.dest_dir)
 
     dest_dir = package.normalize_user_path(dest_dir, is_dest_path=True, \
         include_basedir=prepend_basedir)
-    src_dir = package.normalize_user_path(self.src_dir, is_dest_path=False, \
+    src_dir = package.normalize_user_path(package.force(self.src_dir), is_dest_path=False, \
         include_basedir=prepend_basedir)
 
     if not src_dir.endswith(os.sep):
@@ -156,7 +156,7 @@ class CopyDir(step.Step):
     exclude_list = []
     exclude_list.extend(CopyDir.get_permanent_excludes())
     if self.exclude_patterns != None:
-      exclude_list.extend(self.exclude_patterns)
+      exclude_list.extend(package.force(self.exclude_patterns))
 
     if exclude_list:
       for pattern in exclude_list:
@@ -207,7 +207,7 @@ class Remove(step.Step):
     self.recursive = recursive
 
   def emitPackageOps(self, package):
-    finalName = package.normalize_user_path(self.name, is_dest_path=True)
+    finalName = package.normalize_user_path(package.force(self.name), is_dest_path=True)
     if self.recursive:
       return "  <delete dir=\"" + finalName + "\" />\n"
     else:
@@ -221,7 +221,8 @@ class MakeDir(step.Step):
     self.dirname = dirname
 
   def emitPackageOps(self, package):
-    return "  <mkdir dir=\"" + package.normalize_user_path(self.dirname, is_dest_path=True) \
+    return "  <mkdir dir=\"" \
+        + package.normalize_user_path(package.force(self.dirname), is_dest_path=True) \
         + "\"/>\n"
 
 
@@ -243,8 +244,8 @@ class Link(step.Step):
     <arg value="%(target)s" />
     <arg value="%(link)s" />
   </exec>
-""" % { "target" : package.normalize_select_user_path(self.target_name),
-        "link"   : package.normalize_user_path(self.link_name, is_dest_path=True)
+""" % { "target" : package.normalize_select_user_path(package.force(self.target_name)),
+        "link"   : package.normalize_user_path(package.force(self.link_name), is_dest_path=True)
       }
 
 
@@ -260,7 +261,8 @@ class Move(step.Step):
 
 
   def resolve(self, package):
-    src = package.normalize_user_path(self.src, is_dest_path=False, include_basedir=False)
+    src = package.normalize_user_path(package.force(self.src), \
+        is_dest_path=False, include_basedir=False)
     if src.endswith(os.sep):
       package.resolved_input_dir(src)
     else:
@@ -273,8 +275,8 @@ class Move(step.Step):
     <arg value="%(src)s" />
     <arg value="%(dest)s" />
   </exec>
-""" % { "src"  : package.normalize_user_path(self.src),
-        "dest" : package.normalize_user_path(self.dest, is_dest_path=True)
+""" % { "src"  : package.normalize_user_path(package.force(self.src)),
+        "dest" : package.normalize_user_path(package.force(self.dest), is_dest_path=True)
       }
 
 

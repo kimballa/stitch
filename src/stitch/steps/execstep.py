@@ -55,7 +55,7 @@ class Exec(step.Step):
     if self.force_build:
       package.resolved_forced_build()
     else:
-      for input in self.inputs:
+      for input in package.force(self.inputs):
         input = self.__substitute(input, package)
         if input.endswith(os.sep):
           package.resolved_input_dir(input)
@@ -74,7 +74,7 @@ class Exec(step.Step):
 
     text = ""
 
-    real_exec = self.__substitute(self.executable, package)
+    real_exec = self.__substitute(package.force(self.executable), package)
     text = text + "  <exec executable=\"" + real_exec + "\"\n"
     if self.fail_on_error:
       text = text + "    failonerror=\"true\"\n"
@@ -82,11 +82,13 @@ class Exec(step.Step):
       # Run the command wherever we're doing the assembly.
       text = text + "    dir=\"" + package.get_assembly_dir() + "\">\n"
     else:
-      real_working_dir = package.normalize_user_path(self.working_dir, is_dest_path=True)
+      real_working_dir = package.normalize_user_path(package.force(self.working_dir),
+          is_dest_path=True)
       text = text + "    dir=\"" + real_working_dir + "\">\n"
 
     if self.arguments != None:
-      for arg in self.arguments:
+      args = package.force(self.arguments)
+      for arg in args:
         arg = self.__substitute(arg, package)
         text = text + "     <arg value=\"" + arg + "\" />\n"
 

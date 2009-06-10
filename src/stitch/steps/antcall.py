@@ -43,20 +43,22 @@ class AntCall(step.Step):
       # Run ant wherever we're doing the assembly.
       text = text + "    dir=\"" + package.get_assembly_dir() + "\">\n"
     else:
-      text = text + "    dir=\"" + package.normalize_user_path(self.base_dir, is_dest_path=True) + "\">\n"
+      text = text + "    dir=\"" \
+          + package.normalize_user_path(package.force(self.base_dir), is_dest_path=True) + "\">\n"
 
     if self.build_file != None:
       text = text + "    <arg value=\"-f\" />\n"
-      text = text + "    <arg value=\"" + package.normalize_user_path(self.build_file) + "\" />\n"
+      text = text + "    <arg value=\"" \
+          + package.normalize_user_path(package.force(self.build_file)) + "\" />\n"
 
     if self.properties != None:
       for prop_name in self.properties:
-        prop_val = self.properties[prop_name]
+        prop_val = package.force(self.properties[prop_name])
         prop_arg = "-D" + prop_name + "=" + prop_val
         text = text + "     <arg value=\"" + prop_arg + "\" />\n"
 
     if self.ant_target != None:
-      text = text + "    <arg value=\"" + self.ant_target + "\" />\n"
+      text = text + "    <arg value=\"" + package.force(self.ant_target) + "\" />\n"
 
     text = text + "  </exec>\n"
     return text

@@ -39,7 +39,7 @@ class Tar(step.Step):
     if self.filename == None:
       tar_filename = pkgName + ".tar.gz"
     else:
-      tar_filename = self.filename
+      tar_filename = package.force(self.filename)
 
     return tar_filename
 
@@ -50,8 +50,8 @@ class Tar(step.Step):
       # Use build-in tar command.
       pkgName = package.get_package_name() + package.getVerWithDash()
       if self.dir != None:
-        full_path_to_grab = package.normalize_user_path(self.dir, is_dest_path=True, \
-            include_basedir=False)
+        full_path_to_grab = package.normalize_user_path(package.force(self.dir), \
+            is_dest_path=True, include_basedir=False)
       else:
         full_path_to_grab = package.get_assembly_dir()
 
@@ -79,7 +79,7 @@ class Tar(step.Step):
       # user set self.args; so we use all of those.
       # run tar from the package base path.
       argtext = ""
-      for arg in self.args:
+      for arg in package.force(self.args):
         arg = package.normalize_select_user_path(arg)
         arg = package.substitute_macros(arg)
 

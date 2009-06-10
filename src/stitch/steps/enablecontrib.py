@@ -43,10 +43,10 @@ class EnableContrib(step.Step):
     if hadoop_dir == None:
       hadoop_dir = package.get_assembly_dir()
 
-    buildDir = os.path.join(hadoop_dir, "build", "contrib", self.name)
+    buildDir = os.path.join(hadoop_dir, "build", "contrib", package.force(self.name))
     targetDir = os.path.join(hadoop_dir, "build", \
         "hadoop-" + self.compile_step.getVerString(), "lib")
-    srcLibDir = os.path.join(hadoop_dir, "src", "contrib", self.name, "lib")
+    srcLibDir = os.path.join(hadoop_dir, "src", "contrib", package.force(self.name), "lib")
 
     return """
   <copy todir="%(targetdir)s">

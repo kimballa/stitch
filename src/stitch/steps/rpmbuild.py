@@ -21,8 +21,9 @@ class RpmBuild(step.Step):
     # inputs list to this object as well and/or support forced builds
     # a la Exec.
     package.resolved_input_file( \
-        package.normalize_user_path(self.spec_file, is_dest_path=False, include_basedir=False))
-    for source in self.sources:
+        package.normalize_user_path(package.force(self.spec_file),
+        is_dest_path=False, include_basedir=False))
+    for source in package.force(self.sources):
       package.resolved_input_file( \
           package.normalize_user_path(source, is_dest_path=False, include_basedir=False))
 
@@ -34,7 +35,7 @@ class RpmBuild(step.Step):
             todir="${rpmdir}/SOURCES/"
             overwrite="yes"/>
       """ % package.normalize_user_path(source_file)
-      for source_file in self.sources])
+      for source_file in package.force(self.sources)])
 
     text = """
   <!-- Create the RPM build skeleton -->
@@ -82,13 +83,13 @@ class RpmBuild(step.Step):
           command="%(rpm_build_cmd)s" />
 
 """ % {
-     "spec_file": package.normalize_user_path(self.spec_file),
+     "spec_file": package.normalize_user_path(package.force(self.spec_file)),
      "pkgName": package.get_package_name(),
      "pkgRoot": package.get_assembly_dir(),
      "version": package.getVerString(),
      "rpmVersion": re.sub('-','_', package.getVerString()),
-     "rpm_build_cmd": self.rpm_build_cmd,
-     "release": self.rpm_release,
+     "rpm_build_cmd": package.force(self.rpm_build_cmd),
+     "release": package.force(self.rpm_release),
      "source_copies": source_copies
       }
 
