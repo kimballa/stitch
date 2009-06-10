@@ -355,6 +355,9 @@ class Target(object):
         distinguish between the two cases. """
     return []
 
+  def get_required_targets(self):
+    return self.force(self.required_targets)
+
   def getClassPathElements(self):
     return []
 
@@ -432,3 +435,31 @@ class Target(object):
         + self.getBuildFile().getFileName() + " referenced missing target: " + target_name
     sys.exit(1)
 
+  def force(self, val):
+    """ If a val may represent a thunk, then we force it before returning our results,
+        according to the following rules:
+          lists are processed iteratively
+          thunks have their force() method called. 
+          strings or anything else are returned as-is
+
+        If a val is a list, and contains thunks, if those thunks return lists, they
+        are all flattened into the output list. Thunks may not return more thunks,
+        only final values (strings, or lists of strings).
+    """
+
+    if isinstance(val, list):
+      out = []
+      for v in val:
+        this_out = self.force(v)
+        if isinstance(this_out, list):
+          # flatten lists
+          out.extend(this_out)
+        else:
+          out.append(this_out)
+      return out
+    elif hasattr(val, 'force'):
+      return val.force(self)
+    else:
+      return val
+      
+    

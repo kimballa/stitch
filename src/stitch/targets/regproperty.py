@@ -32,7 +32,7 @@ class RegisterProperty(AntTarget):
         for the ant rule (which will only ever be "preamble") """
 
     return """<property name="%(name)s" value="%(val)s" />\n""" % {
-      "name" : self.substitute_macros(self.prop_name),
-      "val"  : self.substitute_macros(self.prop_val)
+      "name" : self.substitute_macros(self.force(self.prop_name)),
+      "val"  : self.substitute_macros(self.force(self.prop_val))
     }
 

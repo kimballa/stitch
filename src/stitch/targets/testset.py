@@ -62,7 +62,7 @@ class TestSetTarget(AntTarget):
     """ Return the user-friendly name for this test set """
 
     if self.test_set_name != None:
-      return self.test_set_name
+      return self.force(self.test_set_name)
     else:
       return self.getCanonicalName()
 
@@ -190,9 +190,9 @@ class TestCase(object):
       # Just use the gensym'd test case id for the test case naem
       case_name = fail_prop_name
     else:
-      text = text + "  <echo message=\"Running test case: " + self.name \
+      text = text + "  <echo message=\"Running test case: " + test_set.force(self.name) \
           + "\" />\n"
-      case_name = self.name
+      case_name = test_set.force(self.name)
 
     # what property signals failure of the overall test set?
     test_set_fail_prop = test_set.getFailureProp()
@@ -207,12 +207,12 @@ class TestCase(object):
       timeout_str = "timeout=\"${default-test-case-timeout}\""
     else:
       # User-specified timeout:
-      timeout_str = "timeout=\"" + self.timeout + "\""
+      timeout_str = "timeout=\"" + test_set.force(self.timeout) + "\""
 
     if self.args == None:
       arg_str = ""
     else:
-      arg_str = "<arg line=\"" + str(self.args) + "\" />"
+      arg_str = "<arg line=\"" + str(test_set.force(self.args)) + "\" />"
 
     # TODO(aaron): if this returns a non-zero exit code, it prints
     # that fact to the screen. Can we disable this, knowing that we
@@ -231,7 +231,7 @@ class TestCase(object):
     <echo message="Test case failed: %(casename)s (Timeout)"/>
   </if>
 """ % {
-      "program"     : self.executable,
+      "program"     : test_set.force(self.executable),
       "execdir"     : exec_dir,
       "resultprop"  : result_prop_name,
       "timeout"     : timeout_str,

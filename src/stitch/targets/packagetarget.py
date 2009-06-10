@@ -30,7 +30,8 @@ class PackageTarget(StepBasedTarget):
 
 
   def get_package_name(self):
-    return self.package_name
+    return self.force(self.package_name)
+
 
   def get_assembly_top_dir(self):
     """ Returns the top-level directory for the package. The assembly dir
@@ -70,12 +71,12 @@ class PackageTarget(StepBasedTarget):
     when hen no tarball is created.
     """
     return os.path.join(self.get_assembly_top_dir(),
-                        self.package_name + self.getVerWithDash() + ".stamp")
+                        self.get_package_name() + self.getVerWithDash() + ".stamp")
 
 
   def emit_tarball_text(self):
     # No Tar is zipping this up; we need to do it ourselves.
-    pkgName = self.package_name + self.getVerWithDash()
+    pkgName = self.get_package_name() + self.getVerWithDash()
     basePath = self.get_assembly_top_dir()
     tarFileName = os.path.join(basePath, pkgName + ".tar.gz")
 

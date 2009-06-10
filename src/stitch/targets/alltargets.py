@@ -51,6 +51,9 @@ from   stitch.targets.stepwise import *
 from   stitch.targets.testset import *
 from   stitch.targets.vertarget import *
 
+from   stitch.targets.thunks import *
+
+
 class RawAntTarget(AntTarget):
   """ Injects raw user-specified XML into the build.xml file.
       Parameters:

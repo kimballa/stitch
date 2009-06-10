@@ -59,7 +59,7 @@ class PythonBaseTarget(AntTarget):
     text = text + depAntRules
     text = text + ">\n"
 
-    for src in self.getSources():
+    for src in self.get_sources():
       text = text + self.copySource(self.normalize_user_path(src), outPath)
 
     for src in self.getDependencySourcesForLang("python"):
@@ -93,8 +93,8 @@ class PythonTarget(PythonBaseTarget):
     self.required_targets = required_targets
     self.data_paths = data_paths
 
-  def getSources(self):
-    return self.sources
+  def get_sources(self):
+    return self.force(self.sources)
 
   def getOutputPaths(self):
     return [ "${python-outdir}/" ]
@@ -146,8 +146,8 @@ class PythonTestTarget(PythonBaseTarget):
     self.required_targets = required_targets
     self.data_paths = data_paths
 
-  def getSources(self):
-    return self.sources
+  def get_sources(self):
+    return self.force(self.sources)
 
 
   def get_ant_rule_map(self):
@@ -164,9 +164,6 @@ class PythonTestTarget(PythonBaseTarget):
 
   def getOutputPaths(self):
     return [ "${python-outdir}/" ]
-
-  def getFullBuilddirectory(self):
-    return "${python-outdir}/"
 
 
   def testShellAntRule(self, rule, mainName):
@@ -196,7 +193,7 @@ class PythonTestTarget(PythonBaseTarget):
     text = text + "    resultproperty=\"" + rule + "-result-prop\"\n"
     text = text + " dir=\"${python-outdir}\" failonerror=\"false\">\n"
     text = text + "    <arg value=\"-m\" />\n"
-    text = text + "    <arg value=\"" + self.main_module + "\"/>\n"
+    text = text + "    <arg value=\"" + self.force(self.main_module) + "\"/>\n"
     text = text + "  </exec>\n"
     text = text + "  <if name=\"" + rule + "-result-prop\" value=\"0\">\n"
     text = text + "    <else>\n"

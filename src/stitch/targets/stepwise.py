@@ -173,8 +173,8 @@ class StepBasedTarget(AntTarget):
       # Ant's uptodate task is somewhat stupid and can't deal with absolute paths
       # inside the srcfiles elements. Therefore we have to split up the input
       # paths by their leading directory component
-      include_paths = (self.resolved_input_files +
-                       [os.path.join(name, "**") for name in self.resolved_input_dirs])
+      include_paths = (self.force(self.resolved_input_files) +
+                       [os.path.join(name, "**") for name in self.force(self.resolved_input_dirs)])
 
       # We dont want to include anything inside the package path directory
       package_path = os.path.realpath(self.get_assembly_dir())
@@ -240,7 +240,7 @@ class StepBasedTarget(AntTarget):
   </exec>
 """ % {
       "manifest" : os.path.join("${basedir}", self.getInputDirectory(), \
-          self.manifest_file),
+          self.force(self.manifest_file)),
       "pkgpath"  : self.get_assembly_dir()
     }
 
@@ -293,8 +293,10 @@ class StepBasedTarget(AntTarget):
 
     if self.user_outputs != None:
       absolute_outs = []
-      for item in self.user_outputs:
+      for item in self.force(self.user_outputs):
         absolute_outs.append(self.normalize_user_path(item, is_dest_path=True))
       return absolute_outs
     else:
       return []
+
+

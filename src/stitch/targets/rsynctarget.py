@@ -37,7 +37,7 @@ class RsyncTarget(AntTarget):
 
 
   def outputPaths(self):
-    return [ "${local-rsync-cache}/" + self.filename ]
+    return [ "${local-rsync-cache}/" + self.force(self.filename) ]
 
 
   def get_ant_rule_map(self):
@@ -118,8 +118,8 @@ class RsyncTarget(AntTarget):
       <fail message="MD5 mismatch for ${local-rsync-cache}/%(filename)s; expected %(md5sum)s" />
     </if>
   </if>
-""" % { "filename" : self.filename,
-        "md5sum"   : self.md5sum,
+""" % { "filename" : self.force(self.filename),
+        "md5sum"   : self.force(self.md5sum),
         "rulename" : rule }
 
     text = text + "</target>\n"

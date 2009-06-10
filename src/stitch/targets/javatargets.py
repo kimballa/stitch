@@ -26,6 +26,10 @@ class JavaBaseTarget(AntTarget):
     return True
 
 
+  def get_sources(self):
+    return self.force(self.sources)
+
+
   def java_preamble(self):
     """ Emit named path objects for classpath and outputs """
     return self.output_target_preamble()
@@ -40,7 +44,7 @@ class JavaBaseTarget(AntTarget):
     # uptodate rule to check whether to build javadoc in the first place
     text = text + "<target name=\"" + rule + "-uptodate\" depends=\"init\">\n"
     text = text + "  <uptodate property=\"" + rule + "-is-uptodate\">\n"
-    for src in self.sources:
+    for src in self.get_sources():
       text = text + "    <srcfiles dir=\"" + self.normalize_user_path(src) + "\">\n"
       text = text + "      <include name=\"**/*.java\" />\n"
       text = text + "      <include name=\"**/*.html\" />\n"
@@ -62,7 +66,7 @@ class JavaBaseTarget(AntTarget):
     text = text + "  windowtitle=\"" + title + "\" doctitle=\"" + title + "\"\n"
     text = text + "  destdir=\"" + outdir + "\">\n"
 
-    for src in self.sources:
+    for src in self.get_sources():
       text = text + "    <fileset dir=\"" + self.normalize_user_path(src) + "\">\n"
       text = text + "      <include name=\"**/*.java\" />\n"
       text = text + "      <include name=\"**/*.html\" />\n"
@@ -91,7 +95,7 @@ class JavaBaseTarget(AntTarget):
 
     text = text + ">\n"
 
-    for src in self.sources:
+    for src in self.get_sources():
       srcpath = self.normalize_user_path(src)
       text = text + "  <src path=\"" + srcpath + "\" />\n"
 
@@ -280,7 +284,7 @@ class JarTarget(JavaBaseTarget):
     text = text + "<target name=\"" + rule + "\">\n"
     text = text + "  <checkstyle config=\"${checkstyle-config-path}\">\n"
     text = text + "    <fileset dir=\"${basedir}\">\n"
-    for src in self.sources:
+    for src in self.get_sources():
       srcpath = self.normalize_user_path(src, is_dest_path=False, include_basedir=False)
       text = text + "  <include name=\"" + srcpath + "**/*.java\" />\n"
     text = text + """
@@ -305,7 +309,7 @@ class JarTarget(JavaBaseTarget):
     text = text + "    ${pmd-home}/rulesets/unusedcode.xml\">\n"
     text = text + "    <formatter type=\"text\" toConsole=\"true\" />\n"
     text = text + "    <fileset dir=\"${basedir}\">\n"
-    for src in self.sources:
+    for src in self.get_sources():
       srcpath = self.normalize_user_path(src, is_dest_path=False, include_basedir=False)
       text = text + "  <include name=\"" + srcpath + "**/*.java\" />\n"
     text = text + """
@@ -366,7 +370,7 @@ class JarTarget(JavaBaseTarget):
     <manifest>
       <attribute name="Main-Class" value="%(mainclass)s" />
     </manifest>
-""" % { "mainclass" : self.main_class_name }
+""" % { "mainclass" : self.force(self.main_class_name) }
 
     text = text + "  </jar>\n"
     text = text + "</target>\n"
@@ -374,7 +378,7 @@ class JarTarget(JavaBaseTarget):
 
 
   def outputPaths(self):
-    return [ "${jardir}/" + self.jar_name ]
+    return [ "${jardir}/" + self.force(self.jar_name) ]
 
 
 
@@ -466,19 +470,19 @@ class JavaTarget(AntTarget):
     if self.main_jar_target == None or len(self.main_jar_target) == 0:
       raise TargetError(self, "Target " + self.getCanonicalName() \
           + " does not have the required 'main_jar_target' attribute set.")
-    jarTargetObj = self.getTargetByName(self.main_jar_target)
+    jarTargetObj = self.getTargetByName(self.force(self.main_jar_target))
     if jarTargetObj == None:
       raise TargetError(self, "Target " + self.getCanonicalName() \
-          + " cannot find main_jar_target=\"" + self.main_jar_target + "\"")
+          + " cannot find main_jar_target=\"" + self.force(self.main_jar_target) + "\"")
     # this should return a singleton list
     jarFileLst = jarTargetObj.outputPaths()
     if len(jarFileLst) == 0:
       raise TargetError(self, "Target " + self.getCanonicalName() \
-          + " with main_jar_target=\"" + self.main_jar_target + "\";"
+          + " with main_jar_target=\"" + self.force(self.main_jar_target) + "\";"
           + " no jar file set in main_jar_target")
     if len(jarFileLst) > 1:
       raise TargetError(self, "Target " + self.getCanonicalName() \
-          + " with main_jar_target=\"" + self.main_jar_target + "\";"
+          + " with main_jar_target=\"" + self.force(self.main_jar_target) + "\";"
           + " multiple output files set in main_jar_target. (Are you"
           + " sure this is a JarTarget?)")
     jarFileName = jarFileLst[0]
@@ -522,9 +526,11 @@ class JavaTarget(AntTarget):
     text = text + "    <arg value=\"" + self.getExecName() + "\"/>\n"
     text = text + "    <arg value=\"--dir\"/>\n"
     text = text + "    <arg value=\"" + dest_dir + "\"/>\n"
-    if self.java_options != None and len(self.java_options) > 0:
-      text = text + "    <arg value=\"--javaopts\"/>\n"
-      text = text + "    <arg value=\"" + self.java_options + "\"/>\n"
+    if self.java_options != None:
+      java_opts = self.force(self.java_options):
+      if len(java_opts) > 0:
+        text = text + "    <arg value=\"--javaopts\"/>\n"
+        text = text + "    <arg value=\"" + java_opts + "\"/>\n"
     text = text + "  </exec>\n"
 
     text  = text + "</target>\n"
@@ -534,20 +540,21 @@ class JavaTarget(AntTarget):
   def getMainClass(self):
     """ return the name of the main class to invoke """
 
-    if self.main_class_name != None and len(self.main_class_name) > 0:
+    if self.main_class_name != None and len(self.force(self.main_class_name)) > 0:
       # we specified our own main class name
-      return self.main_class_name
+      return self.force(self.main_class_name)
     else:
       # get the main class name from the jar target.
-      jarTarget = self.getTargetByName(self.main_jar_target)
-      if None == jarTarget:
-        raise TargetError(self, "Could not find jar target: " + self.main_jar_target)
-      mainJarClass = getattr(jarTarget, "main_class_name", "")
-      if mainJarClass == None or len(mainJarClass) == 0:
+      main_target_name = self.force(main_jar_target)
+      jar_target = self.getTargetByName(main_target_name)
+      if None == jar_target:
+        raise TargetError(self, "Could not find jar target: " + main_target-name)
+      main_jar_class = getattr(jar_target, "main_class_name", "")
+      if main_jar_class == None or len(main_jar_class) == 0:
         raise TargetError(self, "Target " + self.getCanonicalName() \
             + " does not have main_class_name attribute, nor does its"
-            + " main jar target, " + jarTarget.getCanonicalName())
-      return mainJarClass
+            + " main jar target, " + jar_target.getCanonicalName())
+      return main_jar_class
 
 
   def finalClassStep(self, className):
@@ -561,10 +568,12 @@ class JavaTarget(AntTarget):
 
   def getExecName(self):
     """ get the name to assign to the executable """
-    if self.exec_name != None and len(self.exec_name) > 0:
-      return self.exec_name
-    else:
-      return self.finalClassStep(self.getMainClass())
+    if self.exec_name != None:
+      forced = self.force(self.exec_name)
+      if len(forced) > 0:
+        return forced
+
+    return self.finalClassStep(self.getMainClass())
 
 
   def outputPaths(self):
@@ -699,7 +708,7 @@ class JavaTestTarget(JavaBaseTarget):
   fork="on"
   maxmemory="${junit-mem}"
   failureproperty="failed" """
-    text = text + "timeout=\"" + self.timeout + "\" "
+    text = text + "timeout=\"" + self.force(self.timeout) + "\" "
     text = text + "dir=\"" + dest_dir + "\">\n"
     text = text + "  <formatter type=\"brief\" usefile=\"false\" />\n"
     text = text + "  <classpath>\n"
@@ -716,9 +725,11 @@ class JavaTestTarget(JavaBaseTarget):
     text = text + "  </classpath>\n"
 
     if self.java_options != None:
-      text = text + "  <jvmarg line=\"" + self.java_options + "\" />\n"
+      java_opts = self.force(self.java_options):
+      if len(java_opts) > 0:
+        text = text + "  <jvmarg line=\"" + java_opts + "\" />\n"
 
-    text = text + "  <test name=\"" + self.main_class_name + "\" />\n"
+    text = text + "  <test name=\"" + self.force(self.main_class_name) + "\" />\n"
     text = text + "</junit>\n"
     text = text + "</target>\n"
 
@@ -728,7 +739,7 @@ class JavaTestTarget(JavaBaseTarget):
   def getClassPathElements(self):
     classPathsOut = [ "${junit-jar}" ]
     if self.classpath_elements != None:
-      classPathsOut.extend(self.classpath_elements)
+      classPathsOut.extend(self.force(self.classpath_elements))
     return classPathsOut
 
 

@@ -52,7 +52,7 @@ class VerStringTarget(AntTarget):
 
   def get_version(self):
     """ Return the version string that should be used by depending targets """
-    return self.version + "${test-suffix}"
+    return self.force(self.version) + "${test-suffix}"
 
   def simple_build_rule(self, rule_name):
     """ If there is nothing to generate, make a null rule. """
@@ -135,9 +135,9 @@ class VerStringTarget(AntTarget):
       <arg value="--verstring" />
       <arg value="%(verstring)s${test-suffix}" />
     </exec>
-""" % { "pymodule"         : self.python_module,
+""" % { "pymodule"         : self.force(self.python_module),
         "intermediate_dir" : intermediate_dir,
-        "verstring"        : self.version
+        "verstring"        : self.force(self.version)
       }
 
     if self.java_class != None:
@@ -152,9 +152,9 @@ class VerStringTarget(AntTarget):
       <arg value="--verstring" />
       <arg value="%(verstring)s${test-suffix}" />
     </exec>
-""" % { "javaclass"        : self.java_class,
+""" % { "javaclass"        : self.force(self.java_class),
         "intermediate_dir" : intermediate_dir,
-        "verstring"        : self.version
+        "verstring"        : self.force(self.version)
       }
 
     text = text + "</target>\n"
@@ -178,7 +178,7 @@ class VerStringTarget(AntTarget):
     if self.python_module == None:
       return ""
 
-    python_mod_parts = self.python_module.split(".")
+    python_mod_parts = self.force(self.python_module).split(".")
     initial_module = python_mod_parts[0]
     if len(python_mod_parts) == 1:
       initial_module = initial_module + ".py"

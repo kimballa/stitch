@@ -122,6 +122,10 @@ class PythonRedistTarget(pythontarget.PythonBaseTarget):
       self.required_targets = allDeps
 
 
+  def get_package_name(self):
+    return self.force(self.package_name)
+
+
   def generates_preamble(self):
     return False
 
@@ -129,7 +133,7 @@ class PythonRedistTarget(pythontarget.PythonBaseTarget):
     """ return the filename of the redistName.tar.gz """
 
     return os.path.join("${redist-outdir}/" + self.getBuildDirectory(), \
-        self.package_name + self.getVerWithDash() + ".tar.gz")
+        self.get_package_name() + self.getVerWithDash() + ".tar.gz")
 
 
   def getVerString(self):
@@ -141,7 +145,7 @@ class PythonRedistTarget(pythontarget.PythonBaseTarget):
       # If you don't supply a version number to distutils, it forces 0.0.0
       return "0.0.0"
     else:
-      return self.getTargetByName(self.version).get_version()
+      return self.getTargetByName(self.force(self.version)).get_version()
 
 
   def getVerWithDash(self):
@@ -169,7 +173,7 @@ class PythonRedistTarget(pythontarget.PythonBaseTarget):
         that this ends with a '/' so PackageTargets can use it"""
 
     pkgPath = os.path.join("${redist-outdir}/" + self.getBuildDirectory(), \
-        self.package_name + self.getVerWithDash() + os.sep)
+        self.get_package_name() + self.getVerWithDash() + os.sep)
     if not pkgPath.endswith(os.sep):
       pkgPath = pkgPath + os.sep
     return pkgPath
@@ -216,18 +220,22 @@ class PythonRedistTarget(pythontarget.PythonBaseTarget):
     ret = []
     for c in self.steps:
       if hasattr(c, "install_dir") and hasattr(c, "filename"):
-        assert not c.filename.__contains__("\t")
-        assert not c.install_dir.__contains__("\t")
+        filename = self.force(c.filename)
+        install_dir = self.force(c.install_dir)
+        assert not filename.__contains__("\t")
+        assert not install_dir.__contains__("\t")
         ret.append(self.create_echo_statement(file_path, "%s\t%s" \
-            % (self.normalize_user_path(c.filename, is_dest_path=True, include_basedir=False), \
-            c.install_dir)))
+            % (self.normalize_user_path(filename, is_dest_path=True, include_basedir=False), \
+            install_dir)))
       elif hasattr(c, "install_dir") and hasattr(c, "dirname"):
-        assert not c.dirname.__contains__("\t")
-        assert not c.install_dir.__contains__("\t")
+        dirname = self.force(c.dirname)
+        instal_dir = self.force(c.install_dir)
+        assert not dirname.__contains__("\t")
+        assert not install_dir.__contains__("\t")
         ret.append(self.create_echo_statement(file_path, "%s\t%s" \
-            % (os.path.join(self.normalize_user_path(c.dirname, is_dest_path=True, \
+            % (os.path.join(self.normalize_user_path(dirname, is_dest_path=True, \
             include_basedir=False), "**"),
-            c.install_dir)))
+            install_dir)))
     return '\n'.join(ret)
 
 
@@ -238,6 +246,7 @@ class PythonRedistTarget(pythontarget.PythonBaseTarget):
     The path is typically bin/path/to/project/distutils-datafiles.
     """
     return os.path.join(self.get_assembly_top_dir(), "distutils-datafiles")
+
 
   def packageRule(self, rule):
     (mainName, ruleType) = self.splitRuleName(rule)
@@ -261,11 +270,11 @@ class PythonRedistTarget(pythontarget.PythonBaseTarget):
             + " in language: " + str(target.language()))
 
       try:
-        sources = target.getSources()
+        sources = target.get_sources()
         for src in sources:
           text = text + self.copySource(target.normalize_user_path(src), copyTarget)
       except AttributeError:
-        # Doesn't have getSources(); maybe it generates intermediates
+        # Doesn't have get_sources(); maybe it generates intermediates
         try:
           sources = target.intermediatePathsForLang(self.language())
           for src in sources:
@@ -284,10 +293,11 @@ class PythonRedistTarget(pythontarget.PythonBaseTarget):
 
     # TODO(aaron): Make distutils setup.py production a step/action.
     if self.use_dist_utils:
-      if self.output_source_root != None and len(self.output_source_root) > 0:
-        source_root = self.normalize_user_path(self.output_source_root)
-      else:
-        source_root = "."
+      source_root = "."
+      if self.output_source_root != None:
+        output_src_root = self.force(self.output_source_root)
+        if len(output_src_root) > 0:
+          source_root = self.normalize_user_path(output_src_root)
 
       # Generate a setup.py file and wrap the tarball using distutils
 
@@ -314,12 +324,13 @@ class PythonRedistTarget(pythontarget.PythonBaseTarget):
   <delete dir="%(targetdir)s/dist" />
   <delete dir="%(targetdir)s/MANIFEST" />
 """ % { "targetdir"      : copyTarget,
-        "packagename"    : self.package_name,
+        "packagename"    : self.get_package_name(),
         "verstring"      : self.getVerString(),
         "source_root"    : source_root,
         "basedir"        : self.get_assembly_top_dir(),
         "datafiles"      : self.get_dist_utils_data_files_ant_path(),
-        "datafiles_echo" : self.write_dist_utils_data_files_echos(self.get_dist_utils_data_files_ant_path()),
+        "datafiles_echo" : self.write_dist_utils_data_files_echos(
+                               self.get_dist_utils_data_files_ant_path()),
       }
     else:
       # Create the release tarball ourselves
@@ -329,7 +340,8 @@ class PythonRedistTarget(pythontarget.PythonBaseTarget):
       text = text + "    <arg value=\"" + tarFilename + "\" />\n"
       text = text + "    <arg value=\"-C\" />\n"
       text = text + "    <arg value=\"" + dest_dir + "\" />\n"
-      text = text + "    <arg value=\"" + self.package_name + self.getVerWithDash() + "\" />\n"
+      text = text + "    <arg value=\"" + self.get_package_name() \
+          + self.getVerWithDash() + "\" />\n"
       text = text + "  </exec>\n"
 
     text = text + "</target>\n"
@@ -344,7 +356,7 @@ class PythonRedistTarget(pythontarget.PythonBaseTarget):
     if self.output_source_root == None:
       srcdir = self.get_assembly_dir()
     else:
-      srcdir = os.path.join(self.get_assembly_dir(), self.output_source_root)
+      srcdir = os.path.join(self.get_assembly_dir(), self.force(self.output_source_root))
 
     outdir = "${docs-outdir}/" + self.getBuildDirectory()
 
@@ -354,12 +366,12 @@ class PythonRedistTarget(pythontarget.PythonBaseTarget):
     if self.required_targets != None:
       # For all the sources that we incorporate directly, put their module/package
       # names on the list to create documentation for.
-      for req_name in self.required_targets:
+      for req_name in self.get_required_targets():
         target = self.getTargetByName(req_name)
         try:
-          src_list = target.getSources()
+          src_list = target.get_sources()
         except AttributeError:
-          # Doesn't have getSources. Might be an intermediate generator.
+          # Doesn't have get_sources. Might be an intermediate generator.
           try:
             src_list = target.intermediatePathsForLang(self.language())
           except AttributeError:
@@ -386,7 +398,7 @@ class PythonRedistTarget(pythontarget.PythonBaseTarget):
       text = text + "    <arg value=\"" + outdir + "\"/>\n"
       text = text + "    <arg value=\"--parse-only\"/>\n"
       text = text + "    <arg value=\"--name\"/>\n"
-      text = text + "    <arg value=\"" + self.package_name + "\"/>\n"
+      text = text + "    <arg value=\"" + self.get_package_name() + "\"/>\n"
       text = text + "    <arg value=\"--fail-on-error\"/>\n"
 
       for arg in src_args:

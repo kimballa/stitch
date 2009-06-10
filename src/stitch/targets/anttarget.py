@@ -82,7 +82,7 @@ class AntTarget(Target):
     """ all AntTarget subclasses have a classpath_elements field """
     if self.classpath_elements == None:
       return []
-    return self.classpath_elements
+    return self.force(self.classpath_elements)
 
   def getDependencyClassPaths(self, ruleType, recursive=False,
       filter=AllDependencies):
@@ -113,10 +113,11 @@ class AntTarget(Target):
     """
 
     classPaths = []
+    reqs = self.get_required_targets()
     if ruleType == "build" or ruleType == "test":
       # for any ant-based deps, depend on their -build outputs
-      if self.required_targets != None:
-        for target_name in self.required_targets:
+      if reqs != None:
+        for target_name in reqs:
           target = self.getTargetByName(target_name)
           if None == target:
             raise TargetError(self, "Could not find dependency: " + target_name)
@@ -156,8 +157,9 @@ class AntTarget(Target):
 
     def dfsTargetFinder(targetObj, deps):
       newTargets = []
-      if targetObj.required_targets != None:
-        for target_name in targetObj.required_targets:
+      reqs = targetObj.get_required_targets()
+      if reqs != None:
+        for target_name in reqs:
           target = targetObj.getTargetByName(target_name)
           if None == target:
             raise TargetError(self, "Could not find dependency " + target_name \
@@ -209,7 +211,7 @@ class AntTarget(Target):
     if containsAny(allRuleTypes, ["build"]):
       # for any ant-based deps, depend on their -build
       if self.required_targets != None:
-        for target_name in self.required_targets:
+        for target_name in self.get_required_targets():
           target = self.getTargetByName(target_name)
           if None == target:
             raise TargetError(self, "Could not find dependency: " + target_name)
@@ -243,7 +245,7 @@ class AntTarget(Target):
         other targets. """
     deps = []
     if self.required_targets != None:
-      for target_name in self.required_targets:
+      for target_name in self.get_required_targets():
         target = self.getTargetByName(target_name)
         if None == target:
           raise TargetError(self, "Could not find dependency: " + target_name)
@@ -260,7 +262,7 @@ class AntTarget(Target):
 
     deps = []
     if self.required_targets != None:
-      for target_name in self.required_targets:
+      for target_name in self.get_required_targets():
         target = self.getTargetByName(target_name)
         if None == target:
           raise TargetError(self, "Could not find dependency: " + target_name)
