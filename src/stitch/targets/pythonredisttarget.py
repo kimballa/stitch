@@ -229,7 +229,7 @@ class PythonRedistTarget(pythontarget.PythonBaseTarget):
             install_dir)))
       elif hasattr(c, "install_dir") and hasattr(c, "dirname"):
         dirname = self.force(c.dirname)
-        instal_dir = self.force(c.install_dir)
+        install_dir = self.force(c.install_dir)
         assert not dirname.__contains__("\t")
         assert not install_dir.__contains__("\t")
         ret.append(self.create_echo_statement(file_path, "%s\t%s" \
