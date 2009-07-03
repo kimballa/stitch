@@ -7,3 +7,7 @@ cd build/redist/stitch-*
 sudo python setup.py install
 sudo ln -s /usr/share/stitch/bin/stitch /usr/bin/stitch
 
+NOTE: The last step (the step that creates a symlink) might be different for you,
+      depending on the system you're running on.  bin/stitch might exists in
+      /usr/local/share/stitch, /System/Library/Frameworks/Python.framework/Versions/2.5/share/stitch (on Macs),
+      or somewhere entirely different.
