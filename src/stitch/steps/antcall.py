@@ -15,18 +15,22 @@ class AntCall(step.Step):
       base_dir           Opt - directory to run ant in
       build_file         Opt - Buildfile to use instead of ${base_dir}/build.xml
       properties        Opt - Dictionary of key=val properties to pass to ant
+      property_file     Opt - Properties file containing key=val pairs
+                              (may also be a list of files)
       force_build       Opt - Force the package to rebuild (default False)
   """
 
   def __init__(self, ant_target=None, base_dir=None, build_file=None, properties=None,
-               force_build=False):
+               property_file=None, force_build=False):
     step.Step.__init__(self)
 
     self.ant_target = ant_target
     self.base_dir = base_dir
     self.build_file = build_file
     self.properties = properties
+    self.property_file = property_file
     self.force_build = force_build
+
 
   def resolve(self, package):
     # Cannot introspect for uptodate.
@@ -56,6 +60,13 @@ class AntCall(step.Step):
         prop_val = package.force(self.properties[prop_name])
         prop_arg = "-D" + prop_name + "=" + prop_val
         text = text + "     <arg value=\"" + prop_arg + "\" />\n"
+
+    if self.property_file != None:
+      if type(self.property_file) != list:
+        self.property_file = [self.property_file]
+      for f in self.property_file:
+        text = text + "     <arg value=\"-propertyfile\" />\n"
+        text = text + "     <arg value=\"" + package.normalize_user_path(f) + "\" />\n"
 
     if self.ant_target != None:
       text = text + "    <arg value=\"" + package.force(self.ant_target) + "\" />\n"
