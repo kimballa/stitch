@@ -1,0 +1,40 @@
+# Bash completion for stich "sbuild"
+# To use this, source this file from your bashrc
+# It will only complete on "./sbuild" unfortunately. Contributions
+# welcome.
+
+_stitch() 
+{
+    local cur prev opts base
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    #
+    #  Complete the arguments to some of the basic commands.
+    #
+    case "${prev}" in
+        --phase)
+            phases="build clean default test"
+            COMPREPLY=( $(compgen -W "${phases}" -- ${cur}) )
+            return 0
+            ;;
+        *)
+        ;;
+    esac
+
+   TARGETS=$(./sbuild --list | sed s,^//,,)
+   opts="--list --help --phase"
+   COMPREPLY=( $(compgen -W "${TARGETS} $opts" -- ${cur}) )
+   # Work-around bash_completion issue where bash interprets a colon as a separator.
+   # Work-around borrowed from the darcs work-around for the same issue.
+   local colonprefixes=${cur%"${cur##*:}"}
+   local i=${#COMPREPLY[*]}
+   while [ $((--i)) -ge 0 ]; do
+     COMPREPLY[$i]=${COMPREPLY[$i]#"$colonprefixes"} 
+   done
+
+   return 0
+}
+complete -F _stitch ./sbuild
+
