@@ -220,7 +220,7 @@ class StepBasedTarget(AntTarget):
       text = text + depAntRules + ">\n"
 
     if self.clean_first:
-      text += "  <delete dir=\"" + self.get_assembly_dir() + "\"/>\n"
+      text += "  <deletermf dir=\"" + self.get_assembly_dir() + "\"/>\n"
 
     # The actual package target work
     text = text + "  <mkdir dir=\"" + self.get_assembly_dir() + "\"/>\n"
@@ -265,7 +265,7 @@ class StepBasedTarget(AntTarget):
   def cleanRule(self, rule):
     (mainName, ruleType) = self.splitRuleName(rule)
     text = """<target name="%(rule)s">
-  <delete dir="%(basepath)s"/>
+  <deletermf dir="%(basepath)s"/>
 </target>
 """ % { "rule"     : rule,
         "basepath" : self.get_assembly_top_dir() }

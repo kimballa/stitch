@@ -130,7 +130,7 @@ class JavaBaseTarget(AntTarget):
 
     text = "<target name=\"" + rule + "\">\n"
     dest_dir = self.get_assembly_dir()
-    text = text + "  <delete dir=\"" + dest_dir + "\" />\n"
+    text = text + "  <deletermf dir=\"" + dest_dir + "\" />\n"
     text = text + "</target>\n"
     return text
 
@@ -450,7 +450,7 @@ class JavaTarget(AntTarget):
 
     text = "<target name=\"" + rule + "\">\n"
     dest_dir = self.get_assembly_dir()
-    text = text + "  <delete dir=\"" + dest_dir + "\" />\n"
+    text = text + "  <deletermf dir=\"" + dest_dir + "\" />\n"
     text = text + "</target>\n"
     return text
 

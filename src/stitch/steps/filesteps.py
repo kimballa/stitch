@@ -209,7 +209,7 @@ class Remove(step.Step):
   def emitPackageOps(self, package):
     finalName = package.normalize_user_path(package.force(self.name), is_dest_path=True)
     if self.recursive:
-      return "  <delete dir=\"" + finalName + "\" />\n"
+      return "  <deletermf dir=\"" + finalName + "\" />\n"
     else:
       return "  <delete file=\"" + finalName + "\" />\n"
 
