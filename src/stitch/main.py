@@ -48,6 +48,7 @@ def printUsage():
   to build the source tree.
 
   Arguments:
+    -C (dir)                     Switch to (dir) before starting work.
     --help                       Print this usage info and exit
     --list                       List available generators and exit
     --generator generatorName    Run stitch with this generator. This
@@ -96,6 +97,12 @@ def main(argv):
       if argv[i] == "--list":
         listGenerators()
         return 0
+      elif argv[i] == "-C":
+        if i == len(argv) -1:
+          print "Error: directory name required. See --help for usage."
+          return 1
+        i = i + 1
+        os.chdir(argv[i])
       elif argv[i] == "--help":
         printUsage()
         return 0
@@ -112,7 +119,6 @@ def main(argv):
         i = i + 1
         userGenerator = loadGenerator(argv[i])
       i = i + 1
-
 
   paths.setBuildRoot(os.getcwd())
 
@@ -135,7 +141,7 @@ def main(argv):
       ignoreFilePath = signore.shouldIgnorePath(file)
       if ignoreFilePath != None:
         # don't do anything more for this buildfile
-        print "mmignoring", file, "(" + ignoreFilePath + ")"
+        print "s-ignoring", file, "(" + ignoreFilePath + ")"
         continue
 
       # process the file
