@@ -304,16 +304,34 @@ ant_map[("%(phase)s", "//%(trail_slash_target)s")] = "%(ant_rule)s"
   <taskdef name="if" classname="ise.antelope.tasks.IfTask"
     classpath="${stitch-java-libs}/AntelopeTasks_3.4.5.jar" />
 
+  <!-- macros -->
+
+  <!--
+    ant's delete dir tries to follow directory symlinks rather than
+    delete them. this version just calls out to rm -Rf to delete
+    them
+  -->
+  <macrodef name="deletermf">
+     <attribute name="dir"/>
+     <sequential>
+        <exec executable="/bin/rm">
+          <arg value="-rf" />
+          <arg value="@{dir}" />
+        </exec>
+     </sequential>
+  </macrodef>
+
+
   <property environment="env"/>
 
   <!-- public targets -->
   <target name="clean-jars"
     description="Delete jars built from our sources">
-    <delete dir="${jardir}" />
+    <deletermf dir="${jardir}" />
   </target>
   <target name="clean-all"
     description="Remove all possible outputs">
-    <delete dir="${outdir}" />
+    <deletermf dir="${outdir}" />
   </target>
   <target name="debug" description="Build in debug mode">
     <antcall target="build">
@@ -329,7 +347,7 @@ ant_map[("%(phase)s", "//%(trail_slash_target)s")] = "%(ant_rule)s"
     if self.has_python:
       text = text + """
     <target name="python-clean" description="Clean python sources">
-      <delete dir="${python-outdir}" />
+      <deletermf dir="${python-outdir}" />
     </target>
     <target name="python-prereqs">
       <mkdir dir="${python-outdir}" />

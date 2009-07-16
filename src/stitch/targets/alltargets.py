@@ -653,7 +653,7 @@ class ThriftTarget(AntTarget):
     """ a rule to clean the genfiles output """
     text = "<target name=\"" + rule + "\">\n"
     dest_dir = self.getIntermediatePath()
-    text = text + "  <delete dir=\"" + dest_dir + "\" />\n"
+    text = text + "  <deletermf dir=\"" + dest_dir + "\" />\n"
     text = text + "</target>\n"
     return text
 
@@ -782,7 +782,7 @@ class CupTarget(AntTarget):
     """ a rule to clean the genfiles output """
     text = "<target name=\"" + rule + "\">\n"
     dest_dir = self.getIntermediatePath()
-    text = text + "  <delete dir=\"" + dest_dir + "\" />\n"
+    text = text + "  <deletermf dir=\"" + dest_dir + "\" />\n"
     text = text + "</target>\n"
     return text
 
@@ -905,7 +905,7 @@ class JFlexTarget(AntTarget):
     """ a rule to clean the genfiles output """
     text = "<target name=\"" + rule + "\">\n"
     dest_dir = self.getIntermediatePath()
-    text = text + "  <delete dir=\"" + dest_dir + "\" />\n"
+    text = text + "  <deletermf dir=\"" + dest_dir + "\" />\n"
     text = text + "</target>\n"
     return text
 
