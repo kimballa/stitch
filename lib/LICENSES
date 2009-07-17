@@ -4,6 +4,7 @@ AntelopeTasks 3.4.5: Apache 2.0 license
 checkstyle: GNU LGPL - http://www.gnu.org/licenses/lgpl.html
 JUnit: Common Public License -  http://junit.sourceforge.net/cpl-v10.html
 JFlex: GNU Public License - http://www.fsf.org/licensing/licenses/gpl.html
+cpptasks: Apache 2.0 license
 
 java-cup:
 CUP Parser Generator Copyright Notice, License, and Disclaimer

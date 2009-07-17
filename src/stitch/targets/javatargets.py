@@ -743,3 +743,104 @@ class JavaTestTarget(JavaBaseTarget):
     return classPathsOut
 
 
+class JavahTarget(AntTarget):
+  """ Runs javah to generate native-code stub headers
+      for JNI access.
+
+      Parameters:
+      classes             Req - A list of classes to invoke javah on
+      required_targets    Opt - (as above)
+      classpath_elements  Opt - (as above)
+  """
+
+  def __init__(self, classes, required_targets=None, classpath_elements=None):
+    AntTarget.__init__(self)
+    self.classes = classes
+    self.required_targets = required_targets
+    self.classpath_elements = classpath_elements
+
+
+  def language(self):
+    return "C"
+
+
+  # Methods allowing C-generating targets to inform one another what
+  # sort of dependencies they generate.
+  def generates_c_source(self):
+    return False
+
+  def generates_c_headers(self):
+    return True
+
+  def generates_c_objects(self):
+    return False
+
+  def generates_c_library(self):
+    return False
+
+  def get_ant_rule_map(self):
+    return {
+      "build" : self.getSafeName() + "-build",
+      "clean" : self.getSafeName() + "-clean",
+      "default" : self.getSafeName() + "-build"
+    }
+
+  def antRule(self, rule):
+    """ generates the XML to put in the buildfile
+        for the ant rule """
+
+    (mainName, ruleType) = self.splitRuleName(rule)
+
+    if ruleType == "clean":
+      return self.cleanRule(rule)
+
+    text = "<target name=\"" + rule + "\" "
+    depAntRules = self.getAntDependencies(ruleType)
+    text = text + depAntRules + ">\n"
+
+    intermediateDir = self.getIntermediatePath()
+
+    text = text + """
+  <mkdir dir="%(intermediatedir)s" />
+  <javah class="%(classliststr)s"
+    destdir="%(intermediatedir)s">
+""" % {
+        "intermediatedir" : intermediateDir,
+        "classliststr"    : ",".join(self.classes),
+      }
+    text = text + "    <classpath>\n"
+    if len(self.getClassPathElements()) > 0:
+      text = text + "      <path refid=\"" + self.getSafeName() + ".classpath\" />\n"
+    depClassPaths = self.getDependencyClassPaths(ruleType, True, AllDependencies)
+    if depClassPaths != None:
+      for elem in depClassPaths:
+        text = text + "      <path refid=\"" + elem + "\" />\n"
+    text = text + "    </classpath>\n"
+    text = text + "  </javah>\n"
+    text = text + "</target>\n"
+    return text
+
+
+  def getIntermediatePath(self):
+    """ return the path where the cup output goes """
+    return "${genfiles-outdir}/" + self.getBuildDirectory()
+
+
+  def intermediatePaths(self):
+    """ return paths to external clients """
+    return [ self.getIntermediatePath() ]
+
+
+  def getFullBuildPath(self):
+    return self.getIntermediatePath()
+
+
+  def cleanRule(self, rule):
+    """ a rule to clean the genfiles output """
+    text = "<target name=\"" + rule + "\">\n"
+    dest_dir = self.getIntermediatePath()
+    text = text + "  <deletermf dir=\"" + dest_dir + "\" />\n"
+    text = text + "</target>\n"
+    return text
+
+

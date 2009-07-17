@@ -303,6 +303,8 @@ ant_map[("%(phase)s", "//%(trail_slash_target)s")] = "%(ant_rule)s"
     classpath="${pmd-home}/lib/pmd-4.2.2.jar" />
   <taskdef name="if" classname="ise.antelope.tasks.IfTask"
     classpath="${stitch-java-libs}/AntelopeTasks_3.4.5.jar" />
+  <taskdef resource="cpptasks.tasks"
+    classpath="${stitch-java-libs}/cpptasks.jar" />
 
   <!-- macros -->
 

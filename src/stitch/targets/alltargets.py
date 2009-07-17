@@ -41,6 +41,7 @@ from   stitch.steps.tar import *
 from   stitch.targets.targeterror import TargetError
 from   stitch.targets.target import *
 from   stitch.targets.anttarget import *
+from   stitch.targets.ctargets import *
 from   stitch.targets.javatargets import *
 from   stitch.targets.packagetarget import *
 from   stitch.targets.pythontarget import *
