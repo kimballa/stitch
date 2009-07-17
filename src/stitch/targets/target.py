@@ -166,6 +166,12 @@ class Target(object):
         This returns the "relative" build directory which may exist
         under ${outdir}, ${redist-outdir}, etc. """
     outDir = self.getCanonicalName().replace(":", "_")
+    if outDir == os.sep + os.sep:
+      # This is the default target in the root directory of the project.
+      # The build should happen in a subdir of build/, so do that here,
+      # based on the safe alias name of the target.
+      outDir = outDir + self.getSafeName().replace(".", "_")
+
     if not outDir.endswith(os.sep):
       outDir = outDir + os.sep
     # Remove the initial '//' from the canonical name when

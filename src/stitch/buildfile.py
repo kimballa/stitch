@@ -210,7 +210,10 @@ class BuildFile(object):
     # and assign the build file's root name to the default target
     if None != self.defaultTarget:
       self.defaultTarget.setCanonicalName(self.canonicalName, False)
-      self.defaultTarget.setSafeName(self.safeName)
+      if self.safeName != "":
+        # As long as we're not in the root of the project, set the safeName to
+        # the buildfile's safename.
+        self.defaultTarget.setSafeName(self.safeName)
 
 
   def addTarget(self, someTarget):
