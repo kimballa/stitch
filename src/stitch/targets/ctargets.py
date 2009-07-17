@@ -85,6 +85,25 @@ class CCBaseTarget(AntTarget):
     text = text + "</target>\n"
     return text
 
+  def __lib_text(self, lib_dirs, libs, is_for_linker=False):
+    """ Generate the -L and -l arguments to pass to gcc """
+    text = ""
+
+    if is_for_linker:
+      argtype = "linkerarg"
+    else:
+      argtype = "compilerarg"
+
+    # Process library directories.
+    for dir in lib_dirs:
+      text = text + "    <" + argtype + " value=\"-L" + dir + "\" />\n"
+
+    # Include any libraries we depend on.
+    for lib in libs:
+      text = text + "    <" + argtype + " value=\"-l" + lib + "\" />\n"
+
+    return text
+
 
   def buildRule(self, rule):
     """ Generate a build command """
@@ -100,7 +119,7 @@ class CCBaseTarget(AntTarget):
 
     text = text + "  <cc name=\"" + self.compiler + "\" debug=\"" \
         + str(self.debug_info).lower() + "\" "
-    text = text + "      optimize=\"" + str(self.optimize).lower() + "\" "
+    text = text + "optimize=\"" + str(self.optimize).lower() + "\" "
     if self.build_type == CCBaseTarget.OBJ_ONLY:
       text = text + "objdir=\"" + dest_dir + "\""
     elif self.build_type == CCBaseTarget.EXECUTABLE:
@@ -116,7 +135,7 @@ class CCBaseTarget(AntTarget):
 
     if self.cflags != None:
       for flag in self.cflags:
-        text = text + "    <compilerarg value=\"" + flag + "\">\n"
+        text = text + "    <compilerarg value=\"" + flag + "\" />\n"
 
     # Force thunks.
     lib_dirs = self.force(self.lib_dirs)
@@ -139,21 +158,23 @@ class CCBaseTarget(AntTarget):
     # directories full of source we need to compile with a <fileset>,
     # directories full of compiled output,
     # or directories full of headers we need to include via -I.
-    for target in self.required_targets:
-      targetObj = self.getTargetByName(target)
-      if targetObj.language() == "C":
-        if targetObj.generates_c_source():
-          sources.extend(targetObj.intermediatePaths())
-        if targetObj.generates_c_headers():
-          include_dirs.extend(targetObj.intermediatePaths())
-        if targetObj.generates_c_objects():
-          objs.extend(targetObj.outputPaths())
-        if targetObj.generates_c_library():
-          libs.extend(targetObj.outputPaths())
+    if self.required_targets != None:
+      for target in self.required_targets:
+        targetObj = self.getTargetByName(target)
+        if targetObj.language() == "C":
+          if targetObj.generates_c_source():
+            sources.extend(targetObj.intermediatePaths())
+          if targetObj.generates_c_headers():
+            include_dirs.extend(targetObj.intermediatePaths())
+          if targetObj.generates_c_objects():
+            objs.extend(targetObj.outputPaths())
+          if targetObj.generates_c_library():
+            libs.extend(targetObj.outputPaths())
           
-    # Process library directories.
-    for dir in lib_dirs:
-      text = text + "    <compilerarg value=\"-L" + dir + "\">\n"
+    if self.compiler == "g++":
+      # cpptasks only uses gcc for the linker, not g++, so we must
+      # enforce linking against c++.
+      libs.append("stdc++")
     
     # Process include dirs.
     for dir in include_dirs:
@@ -164,16 +185,16 @@ class CCBaseTarget(AntTarget):
 
     # Include all the source files to compile.
     for src in sources:
-      src = self.normalize_user_path(src, is_dest_path=False, include_basedir=False)
+      src = self.normalize_user_path(src)
       if src.endswith(os.sep):
         # it's a directory source.
-        text = text + "    <fileset dir=\"${basedir}\">\n"
+        text = text + "    <fileset dir=\"" + src + "\">\n"
         for ext in self.exts:
           text = text + "      <include name=\"**/*." + ext + "\" />\n"
         text = text + "    </fileset>\n"
       else:
         # it's just a single file.
-        text = text + "    <fileset file=\"${basedir}" + os.sep + src + "\" />\n"
+        text = text + "    <fileset file=\"" + src + "\" />\n"
 
     for objpath in objs:
       # These are paths to dirs full of .o files added by required_targets.
@@ -181,9 +202,13 @@ class CCBaseTarget(AntTarget):
       text = text + "      <include name=\"**/*.o\" />\n"
       text = text + "    </fileset>\n"
 
-    # Include any libraries we depend on.
-    for lib in libs:
-      text = text + "    <compilerarg value=\"-l" + lib + "\">\n"
+    text = text + self.__lib_text(lib_dirs, libs, is_for_linker=False)
+
+    if self.build_type != CCBaseTarget.OBJ_ONLY:
+      # We'll be doing linking; specify the linker executable name too.
+      text = text + "    <linker name=\"" + self.compiler + "\">\n"
+      text = text + self.__lib_text(lib_dirs, libs, is_for_linker=True)
+      text = text + "    </linker>\n"
 
     text = text + "  </cc>\n"
     text = text + "</target>\n"
@@ -228,21 +253,29 @@ class CCTarget(CCBaseTarget):
       compiler          opt   Executable of the compiler (default=gcc)
       debug_info        opt   boolean, default false. Generate debug info?
       optimize          opt   "none", "speed", or "size". default none.
+      extensions        opt   List of file extensions to process. default=["c"]
   """
 
   def __init__(self, sources, cflags=None, include_dirs=None, lib_dirs=None,
-               libs=None, required_targets=None, compiler="gcc", debug_info=False, optimize="none"):
+               libs=None, required_targets=None, compiler="gcc", debug_info=False,
+               optimize="none", extensions=None):
+    if extensions == None:
+      extensions = [ "c" ]
     CCBaseTarget.__init__(self, sources, cflags, include_dirs, lib_dirs, libs,
-        required_targets, compiler, debug_info, CCBaseTarget.OBJ_ONLY, None, optimize, ["c"])
+        required_targets, compiler, debug_info, CCBaseTarget.OBJ_ONLY, None, optimize,
+        extensions)
 
 
 class CxxTarget(CCBaseTarget):
   """ All this class does differently from CCTarget is set compiler=g++. """
   def __init__(self, sources, cflags=None, include_dirs=None, lib_dirs=None,
-               libs=None, required_targets=None, compiler="g++", debug_info=False, optimize="none"):
+               libs=None, required_targets=None, compiler="g++", debug_info=False,
+               optimize="none", extensions=None):
+    if extensions == None:
+      extensions = [ "C", "cpp", "cxx" ]
     CCBaseTarget.__init__(self, sources, cflags, include_dirs, lib_dirs, libs,
         required_targets, compiler, debug_info, CCBaseTarget.OBJ_ONLY, None, optimize,
-        [ "C", "cpp", "cxx" ])
+        extensions)
 
 
 class Executable(CCBaseTarget):
@@ -262,12 +295,16 @@ class Executable(CCBaseTarget):
       compiler          opt   Executable of the compiler (default=gcc)
       debug_info        opt   boolean, default false. Generate debug info?
       optimize          opt   boolean, default false. Run with -O?
+      extensions        opt   List of file extensions to process. default=["c"]
   """
 
   def __init__(self, name, sources=None, cflags=None, include_dirs=None, lib_dirs=None,
-               libs=None, required_targets=None, compiler="gcc", debug_info=False, optimize="none"):
+               libs=None, required_targets=None, compiler="gcc", debug_info=False,
+               optimize="none", extensions=None):
+    if extensions == None:
+      extensions = [ "c" ]
     CCBaseTarget.__init__(self, sources, cflags, include_dirs, lib_dirs, libs, required_targets,
-      compiler, debug_info, CCBaseTarget.EXECUTABLE, name, optimize, ["c"])
+      compiler, debug_info, CCBaseTarget.EXECUTABLE, name, optimize, extensions)
   
 
 class Library(CCBaseTarget):
@@ -288,16 +325,19 @@ class Library(CCBaseTarget):
       compiler          opt   Executable of the compiler (default=gcc)
       debug_info        opt   boolean, default false. Generate debug info?
       optimize          opt   boolean, default false. Run with -O?
+      extensions        opt   List of file extensions to process. default=["c"]
   """
 
   def __init__(self, name, dynamic=True, sources=None, cflags=None, include_dirs=None,
                lib_dirs=None, libs=None, required_targets=None, compiler="gcc", debug_info=False,
-               optimize="none"):
+               optimize="none", extensions=None):
     if dynamic:
       type = CCBaseTarget.DYNAMIC_LIB
     else:
       type = CCBaseTarget.STATIC_LIB
+    if extensions == None:
+      extensions = [ "c" ]
       
     CCBaseTarget.__init__(self, sources, cflags, include_dirs, lib_dirs, libs, required_targets,
-        compiler, debug_info, type, name, optimize, ["c"])
+        compiler, debug_info, type, name, optimize, extensions)
 

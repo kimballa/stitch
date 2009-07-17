@@ -43,6 +43,10 @@ syn keyword pythonOperator ProjectList
 syn keyword pythonOperator EmptyTarget
 syn keyword pythonOperator RegisterProperty
 syn keyword pythonOperator RsyncTarget
+syn keyword pythonOperator CCTarget
+syn keyword pythonOperator CxxTarget
+syn keyword pythonOperator Library
+syn keyword pythonOperator Executable
 
 " Steps
 syn keyword pythonBuiltin CopyFile
@@ -84,6 +88,7 @@ syn keyword pythonStatement buildfile_name
 syn keyword pythonStatement build_javac_options
 syn keyword pythonStatement build_rule_name
 syn keyword pythonStatement build_xml
+syn keyword pythonStatement cflags
 syn keyword pythonStatement classpath_elements
 syn keyword pythonStatement clean_first
 syn keyword pythonStatement clean_rule
@@ -91,11 +96,13 @@ syn keyword pythonStatement clean_rule_name
 syn keyword pythonStatement clean_target
 syn keyword pythonStatement clean_xml
 syn keyword pythonStatement compile_step
+syn keyword pythonStatement compiler
 syn keyword pythonStatement components
 syn keyword pythonStatement create_tarball
 syn keyword pythonStatement cup_file
 syn keyword pythonStatement data_paths
 syn keyword pythonStatement debug_javac_options
+syn keyword pythonStatement debug_info
 syn keyword pythonStatement debug_options
 syn keyword pythonStatement default_rule
 syn keyword pythonStatement dest
@@ -103,18 +110,21 @@ syn keyword pythonStatement dest_dir
 syn keyword pythonStatement dest_file
 syn keyword pythonStatement dir
 syn keyword pythonStatement dirname
+syn keyword pythonStatement dynamic
 syn keyword pythonStatement exclude_patterns
 syn keyword pythonStatement exec_name
 syn keyword pythonStatement executable
 syn keyword pythonStatement expect_error
 syn keyword pythonStatement expect_status
 syn keyword pythonStatement expect_success
+syn keyword pythonStatement extensions
 syn keyword pythonStatement fail_on_error
 syn keyword pythonStatement filename
 syn keyword pythonStatement flex_file
 syn keyword pythonStatement force_build
 syn keyword pythonStatement force_refresh
 syn keyword pythonStatement hadoop_dir
+syn keyword pythonStatement include_dirs
 syn keyword pythonStatement include_zip
 syn keyword pythonStatement inputs
 syn keyword pythonStatement install_dir
@@ -123,6 +133,8 @@ syn keyword pythonStatement java_class
 syn keyword pythonStatement javac_options
 syn keyword pythonStatement java_options
 syn keyword pythonStatement languages
+syn keyword pythonStatement lib_dirs
+syn keyword pythonStatement libs
 syn keyword pythonStatement link_name
 syn keyword pythonStatement main_class_name
 syn keyword pythonStatement main_jar_target
@@ -132,6 +144,7 @@ syn keyword pythonStatement make_options
 syn keyword pythonStatement manifest_file
 syn keyword pythonStatement md5sum
 syn keyword pythonStatement name
+syn keyword pythonStatement optimize
 syn keyword pythonStatement outputs
 syn keyword pythonStatement output_source_root
 syn keyword pythonStatement package_name
