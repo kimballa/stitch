@@ -10,11 +10,11 @@
 
 import os
 
-import stitch.paths as paths
+from   stitch import paths
 from   stitch.targets.targeterror import TargetError
 from   stitch.targets.target import *
 from   stitch.targets.anttarget import *
-import stitch.antgenerator as antgenerator
+from   stitch import antgenerator
 
 
 
